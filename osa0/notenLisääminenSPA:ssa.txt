@@ -1,0 +1,17 @@
+title Noten lisääminen SPA:ssa
+
+note right of kayttaja
+Kayttaja kirjoittaa tekstikenttään jotain ja
+klikkaa Talleta-näppäintä.
+end note
+kayttaja->selain:
+note right of selain
+Selain käsittelee näppäimen onSubmit toiminnallisuuden.
+Selain ei lähetä viestiä suoraan palvelimelle, vaan
+luo uuden JSON-tiedoston ja lisäsen taulukkoon notes.
+Sitten Selain päivittää näkymän ja kutsuu funktiota sendToServer.
+SendToServeriä ajettaessa tulostetaan lokiin vastausteksti,
+muutetaan JSON merkkijonoksi ja lähetetään palvelimelle talteen.
+end note
+selain->palvelin: POST https://fullstack-exampleapp.herokuapp.com/new_note_spa
+palvelin->selain: Status 201 created

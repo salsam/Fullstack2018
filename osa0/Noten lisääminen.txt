@@ -1,0 +1,45 @@
+title Noten lisääminen
+
+note right of kayttaja
+Kayttaja kirjoittaa tekstikenttään 
+haluamansa viestin ja klikkaa
+talleta-painiketta.
+end note
+kayttaja->selain:
+
+selain->palvelin: POST https://fullstack-exampleapp.herokuapp.com/new_note
+
+note left of palvelin
+Palvelin tallentaa uuden noten
+end note
+
+palvelin->selain: Status 302, HTML-koodia ja uuden osoitteen /notes
+
+note right of selain
+Selain siirtyy uuteen osoitteeseen /notes
+end note
+
+selain->palvelin: GET https://fullstack-exampleapp.herokuapp.com/notes
+palvelin->selain: Status 200, HTML-koodia
+
+selain->palvelin: GET https://fullstack-exampleapp.herokuapp.com/main.css
+palvelin->selain: Status 200, CSS-tyylit
+
+selain->palvelin: GET https://fullstack-exampleapp.herokuapp.com/main.js
+palvelin->selain: Status 200, Ajettava javascript-koodi
+
+note right of selain
+Selain alkaa ajamaan Javascript-koodia
+end note
+
+selain->palvelin: GET https://fullstack-exampleapp.herokuapp.com/data.json
+palvelin->selain: Status 200, Muistiinåano data JSON muodossa
+
+note right of selain
+Selain täyttää HTML-tiedoston tarvitseman muuttujan data.jsonilla
+ja näyttää käyttäjälle saadun HTML-sivun.
+end note
+selain->kayttaja:
+note right of kayttaja
+Kayttaja näkee päivitetyn muistilistan,
+johon on lisätty uusi note.
