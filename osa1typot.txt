@@ -1,0 +1,2 @@
+registerServiceWorkes.js=>worker
+Dooter=>Footer
