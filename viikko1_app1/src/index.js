@@ -6,16 +6,16 @@ const Otsikko = (props) => (
 )
 
 const Osa = (props) => (
-    <p>{props.nimi} {props.tehtavia} </p>
+    <p>{props.osa.nimi} {props.osa.tehtavia} </p>
 )
 
 const Osat = (props) => {
     console.log(props.osat)
     return (
     <div>
-        <Osa nimi={props.osat[0]} tehtavia={props.tehtavamaarat[0]} />
-        <Osa nimi={props.osat[1]} tehtavia={props.tehtavamaarat[1]} />
-        <Osa nimi={props.osat[2]} tehtavia={props.tehtavamaarat[2]} />
+        <Osa osa={props.osat[0]} />
+        <Osa osa={props.osat[1]} />
+        <Osa osa={props.osat[2]} />
     </div>
     )
 }
@@ -27,27 +27,26 @@ const Yhteensa = (props) => (
 //const Yhteensa = (props) 
 
 const App = () => {
-  const kurssi = 'Half Stack -sovelluskehitys'
-  const osa1 = 'Reactin perusteet'
-  const tehtavia1 = 10
-  const osa2 = 'Tiedonvälitys propseilla'
-  const tehtavia2 = 7
-  const osa3 = 'Komponenttien tila'
-  const tehtavia3 = 14
-  const osat = [osa1, osa2, osa3]
-  const tehtavamaarat=[
-      tehtavia1,
-      tehtavia2,
-      tehtavia3
-  ]
-  const summa=tehtavia1+tehtavia2+tehtavia3
-  const summatest=tehtavamaarat.reduce((a,b) => a+b,0)
-  console.log(summatest)
+    const kurssi = 'Half Stack -sovelluskehitys'
+    const osa1 = {
+      nimi: 'Reactin perusteet',
+      tehtavia: 10
+    }
+    const osa2 = {
+      nimi: 'Tiedonvälitys propseilla',
+      tehtavia: 7
+    }
+    const osa3 = {
+      nimi: 'Komponenttien tila',
+      tehtavia: 14
+    }
+    const osat = [osa1, osa2, osa3]
+    const summa=osa1.tehtavia+osa2.tehtavia+osa3.tehtavia
 
   return (
     <div>
       <Otsikko kurssi={kurssi} />
-      <Osat osat={osat} tehtavamaarat={tehtavamaarat}/>
+      <Osat osat={osat}/>
       <Yhteensa summa={summa} />
     </div>
   )

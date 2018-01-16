@@ -1,2 +1,3 @@
 registerServiceWorkes.js=>worker
 Dooter=>Footer
+Reactissa konstruktorifunktioihin perustuvalle olioiden määrittelyyn ei ole kovin usein tarvetta, joten sivuutamme sen tällä kurssilla.=>määrittelylle
