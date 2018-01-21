@@ -1,2 +1,2 @@
 osa0: 3h
-osa1: 2h
+osa1: 8h
