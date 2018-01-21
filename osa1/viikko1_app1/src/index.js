@@ -26,8 +26,6 @@ const Yhteensa = (props) => (
         + props.kurssi.osat[2].tehtavia} tehtävää</p>
 )
 
-//const Yhteensa = (props) 
-
 const App = () => {
     const kurssi = {
         nimi: 'Half Stack -sovelluskehitys',
