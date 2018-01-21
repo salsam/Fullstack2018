@@ -51,17 +51,15 @@ class App extends React.Component {
         }
     }
 
-    annaHyvaaPalautetta = () => this.setState({ hyva: this.state.hyva + 1 })
-    annaNeutraaliaPalautetta = () => this.setState({ neutraali: this.state.neutraali + 1 })
-    annaHuonoaPalautetta = () => this.setState({ huono: this.state.huono + 1 })
+    annaPalautetta = (tyyppi,arvo) => () => this.setState({[tyyppi + ""]: arvo})
 
     render() {
         return (
             <div>
                 <h1>anna palautetta</h1>
-                <Button handleClick={this.annaHyvaaPalautetta} text="hyvä" />
-                <Button handleClick={this.annaNeutraaliaPalautetta} text="neutraali" />
-                <Button handleClick={this.annaHuonoaPalautetta} text="Huono" />
+                <Button handleClick={this.annaPalautetta("hyva",this.state.hyva+1)} text="hyvä" />
+                <Button handleClick={this.annaPalautetta("neutraali",this.state.neutraali+1)} text="neutraali" />
+                <Button handleClick={this.annaPalautetta("huono",this.state.huono+1)} text="Huono" />
                 <h1>statistiikka</h1>
                 {Statistics(this.state)}
             </div>
