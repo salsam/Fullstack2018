@@ -18,7 +18,10 @@ const positiivisuusProsentti = ({ hyva, neutraali, huono }) => {
 }
 
 const Statistic = ({ value, text, textafter }) => (
-    <div>{text} {value} {textafter}</div>
+    <tr>
+        <td>{text}</td>
+        <td>{value} {textafter}</td>
+    </tr>
 )
 
 const Statistics = (props) => {
@@ -31,13 +34,15 @@ const Statistics = (props) => {
     }
 
     return (
-        <div>
-            <Statistic value={props.hyva} text="hyvä" />
-            <Statistic text="neutraali" value={props.neutraali} />
-            <Statistic text="huono" value={props.huono} />
-            <Statistic text="keskiarvo" value={keskiarvo(props)} />
-            <Statistic text="positiivisia" value={positiivisuusProsentti(props)} textafter="%" />
-        </div>
+        <table>
+            <tbody>
+                <Statistic value={props.hyva} text="hyvä" />
+                <Statistic text="neutraali" value={props.neutraali} />
+                <Statistic text="huono" value={props.huono} />
+                <Statistic text="keskiarvo" value={keskiarvo(props)} />
+                <Statistic text="positiivisia" value={positiivisuusProsentti(props)} textafter="%" />
+            </tbody>
+        </table>
     )
 }
 
@@ -51,15 +56,15 @@ class App extends React.Component {
         }
     }
 
-    annaPalautetta = (tyyppi,arvo) => () => this.setState({[tyyppi + ""]: arvo})
+    annaPalautetta = (tyyppi, arvo) => () => this.setState({ [tyyppi + ""]: arvo })
 
     render() {
         return (
             <div>
                 <h1>anna palautetta</h1>
-                <Button handleClick={this.annaPalautetta("hyva",this.state.hyva+1)} text="hyvä" />
-                <Button handleClick={this.annaPalautetta("neutraali",this.state.neutraali+1)} text="neutraali" />
-                <Button handleClick={this.annaPalautetta("huono",this.state.huono+1)} text="Huono" />
+                <Button handleClick={this.annaPalautetta("hyva", this.state.hyva + 1)} text="hyvä" />
+                <Button handleClick={this.annaPalautetta("neutraali", this.state.neutraali + 1)} text="neutraali" />
+                <Button handleClick={this.annaPalautetta("huono", this.state.huono + 1)} text="Huono" />
                 <h1>statistiikka</h1>
                 {Statistics(this.state)}
             </div>
