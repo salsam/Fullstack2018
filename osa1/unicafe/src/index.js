@@ -8,13 +8,13 @@ const Button = ({ handleClick, text }) => (
 const keskiarvo = ({ hyva, neutraali, huono }) => {
     const yhteensa = hyva + neutraali + huono
     if (yhteensa === 0) return 0
-    return Math.round(1000 * (hyva - huono) / yhteensa) / 1000
+    return Math.floor(1000 * (hyva - huono) / yhteensa) / 1000
 }
 
 const positiivisuusProsentti = ({ hyva, neutraali, huono }) => {
     const yhteensa = hyva + neutraali + huono
     if (yhteensa === 0) return 0
-    return Math.round(1000 * hyva / yhteensa) / 10
+    return Math.floor(1000 * hyva / yhteensa) / 10
 }
 
 const Statistic = ({ value, text, textafter}) => (
