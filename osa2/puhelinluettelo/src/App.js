@@ -7,29 +7,39 @@ class App extends React.Component {
       persons: [
         { name: 'Arto Hellas' }
       ],
-      newName: ''
+      newName: '',
+      newNumber: ''
     }
   }
 
   addNewPerson = (event) => {
     event.preventDefault()
-    const added = {name: this.state.newName}
-    if (this.state.persons.some(person => person.name===added.name)) {
-      alert("Name {added.name} already exists!")
-      this.setState({newName: ''})
+    const added = {
+      name: this.state.newName,
+      number: this.state.newNumber
+    }
+    if (this.state.persons.some(person => person.name === added.name)) {
+      alert("Name already exists!")
+      this.setState({ newName: '' })
       return
     }
-    const persons= this.state.persons.concat(added)
+    const persons = this.state.persons.concat(added)
     console.log(persons)
     this.setState({
       persons,
-      newName: ''
+      newName: '',
+      newNumber: ''
     })
   }
 
   handleNameChange = (event) => {
     console.log(event.target)
     this.setState({ newName: event.target.value })
+  }
+
+  handleNumberChange = (event) => {
+    console.log(event.target)
+    this.setState({ newNumber: event.target.value })
   }
 
   render() {
@@ -45,12 +55,19 @@ class App extends React.Component {
             />
           </div>
           <div>
+            numero:
+            <input
+              value={this.state.newNumber}
+              onChange={this.handleNumberChange}
+            />
+          </div>
+          <div>
             <button type="submit">lisää</button>
           </div>
         </form>
         <h2>Numerot</h2>
         {this.state.persons.map(person => (
-          <div key={person.name}>{person.name}</div>
+          <div key={person.name}>{person.name} {person.number}</div>
         ))}
       </div>
     )
