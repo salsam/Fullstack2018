@@ -13,16 +13,17 @@ const Kurssi = ({ kurssi }) => (
     <div>
         <Otsikko kurssi={kurssi} />
         <Sisalto kurssi={kurssi} />
+        <Yhteensa kurssi={kurssi} />
     </div >
 )
 const Sisalto = ({ kurssi }) => (
     kurssi.osat.map(osa => <Osa key={osa.id} osa={osa} />)
 )
 
-const Yhteensa = ({kurssi}) => (
-    <p>yhteensä {kurssi.osat[0].tehtavia
-        + kurssi.osat[1].tehtavia
-        + kurssi.osat[2].tehtavia} tehtävää</p>
+const Yhteensa = ({ kurssi }) => (
+    <p>
+        yhteensä {kurssi.osat.map(osa => osa.tehtavia).reduce((a, b) => a + b)} tehtävää
+    </p>
 )
 
 const App = () => {
