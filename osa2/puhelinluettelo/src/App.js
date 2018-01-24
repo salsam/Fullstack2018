@@ -1,4 +1,7 @@
 import React from 'react';
+import Numbers from './components/Numbers'
+import FilterField from './components/FilterField'
+import NumberForm from './components/NumberForm'
 
 class App extends React.Component {
   constructor(props) {
@@ -28,7 +31,6 @@ class App extends React.Component {
       return
     }
     const persons = this.state.persons.concat(added)
-    console.log(persons)
     this.setState({
       persons,
       newName: '',
@@ -52,36 +54,11 @@ class App extends React.Component {
     return (
       <div>
         <h1>Puhelinluettelo</h1>
-          <div>rajaa näytettäviä
-          <input
-              value={this.state.filter}
-              onChange={this.handleFilterChange}
-            />
-          </div>
+        <FilterField filter={this.state.filter} handleFilterChange={this.handleFilterChange} />
         <h2>Lisää uusi numero</h2>
-        <form onSubmit={this.addNewPerson}>
-          <div>
-            nimi:
-            <input
-              value={this.state.newName}
-              onChange={this.handleNameChange}
-            />
-          </div>
-          <div>
-            numero:
-            <input
-              value={this.state.newNumber}
-              onChange={this.handleNumberChange}
-            />
-          </div>
-          <div>
-            <button type="submit">lisää</button>
-          </div>
-        </form>
-        <h2>Numerot</h2>
-        {this.state.persons.filter(person => person.name.match(new RegExp(this.state.filter, 'gi'))).map(person => (
-          <div key={person.name}>{person.name} {person.number}</div>
-        ))}
+        <NumberForm state={this.state} addNewPerson={this.addNewPerson}
+          handleNameChange={this.handleNameChange} handleNumberChange={this.handleNumberChange} />
+        <Numbers state={this.state} />
       </div>
     )
   }
