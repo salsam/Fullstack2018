@@ -14,6 +14,11 @@ class App extends React.Component {
   addNewPerson = (event) => {
     event.preventDefault()
     const added = {name: this.state.newName}
+    if (this.state.persons.some(person => person.name===added.name)) {
+      alert("Name {added.name} already exists!")
+      this.setState({newName: ''})
+      return
+    }
     const persons= this.state.persons.concat(added)
     console.log(persons)
     this.setState({
