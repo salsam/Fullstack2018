@@ -25,20 +25,35 @@ class App extends React.Component {
 
   addNewPerson = (event) => {
     event.preventDefault()
-    const added = {
+    const newPerson = {
       name: this.state.newName,
       number: this.state.newNumber
     }
-    if (this.state.persons.some(person => person.name === added.name)) {
-      alert("Name already exists!")
-      this.setState({ newName: '' })
-      return
+    if (this.state.persons.some(person => person.name === newPerson.name)) {
+      if (!window.confirm(`${this.state.newName} on jo luettelossa, korvataanko vanha numero uudella?`)) {
+        this.setState({
+          newName: '',
+          newNumber: ''
+        })
+        return
+      } else {
+        const id = this.state.persons.find(person => person.name === newPerson.name).id
+        //console.log("updating id: "+id)
+        personService
+          .update(id, newPerson)
+          .then(changed => this.setState({
+            persons: this.state.persons.map(person => person.id === id ? changed : person),
+            newName: '',
+            newNumber: ''
+          }))
+        return
+      }
     }
 
     personService
-      .create(added)
+      .create(newPerson)
       .then(persons => this.setState({
-        persons: this.state.persons.concat(added),
+        persons: this.state.persons.concat(newPerson),
         newName: '',
         newNumber: ''
       }))
@@ -57,13 +72,11 @@ class App extends React.Component {
   }
 
   remove = (name) => () => {
-    //console.log("Attempting to remove " + name)
     if (window.confirm(`poistetaanko ${name}?`)) {
-      const id=this.state.persons.find(person => person.name===name).id
-      //console.log(id)
-      //console.log(personService.deleteItem(id))
+      const id = this.state.persons.find(person => person.name === name).id
+      personService.deleteItem(id)
       this.setState({
-        persons: this.state.persons.filter(person => person.id!==id)
+        persons: this.state.persons.filter(person => person.id !== id)
       })
     }
   }
