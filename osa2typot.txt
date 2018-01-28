@@ -1,1 +1,2 @@
 charser=utf8, pitäiskö olla charset?
+Kun nyt kokeillaan luoda uusi muistiinpano, konsoliin tulostus näyttää seuraavalta: ja tyhjä rivi, jotain puuttuu?

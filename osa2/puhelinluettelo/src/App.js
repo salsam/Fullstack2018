@@ -2,7 +2,7 @@ import React from 'react';
 import Numbers from './components/Numbers'
 import FilterField from './components/FilterField'
 import NumberForm from './components/NumberForm'
-import axios from 'axios'
+import personService from './services/Persons'
 
 class App extends React.Component {
   constructor(props) {
@@ -18,10 +18,9 @@ class App extends React.Component {
 
   componentWillMount() {
     console.log("mounting")
-    axios.get('http://localhost:3001/persons')
-    .then(response => {
-      this.setState({persons: response.data})
-    })
+    personService
+      .getAll()
+      .then(persons => this.setState({ persons: persons }))
   }
 
   addNewPerson = (event) => {
@@ -35,12 +34,14 @@ class App extends React.Component {
       this.setState({ newName: '' })
       return
     }
-    const persons = this.state.persons.concat(added)
-    this.setState({
-      persons,
-      newName: '',
-      newNumber: ''
-    })
+
+    personService
+      .create(added)
+      .then(persons => this.setState({
+        persons: this.state.persons.concat(added),
+        newName: '',
+        newNumber: ''
+      }))
   }
 
   handleFilterChange = (event) => {
