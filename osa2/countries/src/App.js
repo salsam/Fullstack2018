@@ -25,6 +25,11 @@ class App extends React.Component {
     this.setState({ filter: event.target.value })
   }
 
+  details = (name) => () => {
+    console.log("details " + name)
+    this.setState({filter: name})
+  }
+
   displayMatched = (matched) => {
     console.log(matched.length)
     if (matched.length === 1) {
@@ -35,12 +40,15 @@ class App extends React.Component {
           <h1>{mats.name}</h1>
           <div>capital {mats.capital}</div>
           <div>population {mats.population}</div>
-          <img src={mats.flag} alt="National flag" width="300" height="200"/>
+          <img src={mats.flag} alt="National flag" width="300" height="200" />
         </div>
       )
     } else if (matched.length < 11) {
       console.log("<11")
-      return matched.map(mats => <p key={mats.name}>{mats.name}</p>)
+      return matched.map(mats =>
+        <div key={mats.name} onClick={this.details(mats.name)}>
+          {mats.name}
+        </div>)
     } else return <div>too many matched, specify another filter</div>
   }
 
