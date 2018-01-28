@@ -30,7 +30,7 @@ class App extends React.Component {
       number: this.state.newNumber
     }
     if (this.state.persons.some(person => person.name === added.name)) {
-      alert("Name already exists!")
+      alert("Name already exists!") 
       this.setState({ newName: '' })
       return
     }
