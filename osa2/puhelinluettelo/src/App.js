@@ -24,6 +24,35 @@ class App extends React.Component {
       .then(persons => this.setState({ persons: persons }))
   }
 
+  changePerson = (id, newPerson) => {
+    personService
+    .update(id, newPerson)
+    .then(changed => this.setState({
+      persons: this.state.persons.map(person => person.id === id ? changed : person),
+      newName: '',
+      newNumber: '',
+      message: {
+        text: `henkilön ${newPerson.name} numeroksi vaihdettu ${newPerson.number}`,
+        type: 'change'
+      }
+    }))
+    .catch(error => {
+      this.componentWillMount()
+      this.createPerson(newPerson)
+    })
+  }
+
+  createPerson = (newPerson) => {
+    personService
+    .create(newPerson)
+    .then(persons => this.setState({
+      persons: this.state.persons.concat(newPerson),
+      newName: '',
+      newNumber: '',
+      message: { text: `lisättiin ${newPerson.name}`, type: 'add' }
+    }))
+  }
+
   addNewPerson = (event) => {
     event.preventDefault()
     const newPerson = {
@@ -39,28 +68,11 @@ class App extends React.Component {
         return
       } else {
         const id = this.state.persons.find(person => person.name === newPerson.name).id
-        personService
-          .update(id, newPerson)
-          .then(changed => this.setState({
-            persons: this.state.persons.map(person => person.id === id ? changed : person),
-            newName: '',
-            newNumber: '',
-            message: {
-              text: `henkilön ${newPerson.name} numeroksi vaihdettu ${newPerson.number}`,
-              type: 'change'
-            }
-          }))
+        this.changePerson(id, newPerson)
         return
       }
     } else {
-      personService
-        .create(newPerson)
-        .then(persons => this.setState({
-          persons: this.state.persons.concat(newPerson),
-          newName: '',
-          newNumber: '',
-          message: { text: `lisättiin ${newPerson.name}`, type: 'add' }
-        }))
+      this.createPerson(newPerson)
     }
 
     setTimeout(() => {
