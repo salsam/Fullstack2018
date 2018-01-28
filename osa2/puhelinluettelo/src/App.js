@@ -3,21 +3,22 @@ import Numbers from './components/Numbers'
 import FilterField from './components/FilterField'
 import NumberForm from './components/NumberForm'
 import personService from './services/Persons'
+import Message from './components/Message'
+import './index.css'
 
 class App extends React.Component {
   constructor(props) {
-    console.log('constructor')
     super(props)
     this.state = {
       persons: [],
       newName: '',
       newNumber: '',
-      filter: ''
+      filter: '',
+      message: { text: null, type: null }
     }
   }
 
   componentWillMount() {
-    console.log("mounting")
     personService
       .getAll()
       .then(persons => this.setState({ persons: persons }))
@@ -38,25 +39,35 @@ class App extends React.Component {
         return
       } else {
         const id = this.state.persons.find(person => person.name === newPerson.name).id
-        //console.log("updating id: "+id)
         personService
           .update(id, newPerson)
           .then(changed => this.setState({
             persons: this.state.persons.map(person => person.id === id ? changed : person),
             newName: '',
-            newNumber: ''
+            newNumber: '',
+            message: {
+              text: `henkilön ${newPerson.name} numeroksi vaihdettu ${newPerson.number}`,
+              type: 'change'
+            }
           }))
         return
       }
+    } else {
+      personService
+        .create(newPerson)
+        .then(persons => this.setState({
+          persons: this.state.persons.concat(newPerson),
+          newName: '',
+          newNumber: '',
+          message: { text: `lisättiin ${newPerson.name}`, type: 'add' }
+        }))
     }
 
-    personService
-      .create(newPerson)
-      .then(persons => this.setState({
-        persons: this.state.persons.concat(newPerson),
-        newName: '',
-        newNumber: ''
-      }))
+    setTimeout(() => {
+      this.setState({
+        message: { text: null, type: null }
+      })
+    }, 5000)
   }
 
   handleFilterChange = (event) => {
@@ -76,15 +87,25 @@ class App extends React.Component {
       const id = this.state.persons.find(person => person.name === name).id
       personService.deleteItem(id)
       this.setState({
-        persons: this.state.persons.filter(person => person.id !== id)
+        persons: this.state.persons.filter(person => person.id !== id),
+        message: {
+          text: `poistettu ${name}`,
+          type: "delete"
+        }
       })
+
+      setTimeout(() => {
+        this.setState({
+          message: { text: null, type: null }
+        })
+      }, 5000)
     }
   }
 
   render() {
-    console.log('render')
     return (
       <div>
+        {Message(this.state.message)}
         <h1>Puhelinluettelo</h1>
         <FilterField filter={this.state.filter} handleFilterChange={this.handleFilterChange} />
         <h2>Lisää uusi numero</h2>
