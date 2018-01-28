@@ -31,7 +31,7 @@ class App extends React.Component {
     }
     if (this.state.persons.some(person => person.name === added.name)) {
       alert("Name already exists!")
-      this.setState({ newName: '' }) 
+      this.setState({ newName: '' })
       return
     }
 
@@ -56,6 +56,18 @@ class App extends React.Component {
     this.setState({ newNumber: event.target.value })
   }
 
+  remove = (name) => () => {
+    //console.log("Attempting to remove " + name)
+    if (window.confirm(`poistetaanko ${name}?`)) {
+      const id=this.state.persons.find(person => person.name===name).id
+      //console.log(id)
+      //console.log(personService.deleteItem(id))
+      this.setState({
+        persons: this.state.persons.filter(person => person.id!==id)
+      })
+    }
+  }
+
   render() {
     console.log('render')
     return (
@@ -65,7 +77,7 @@ class App extends React.Component {
         <h2>Lisää uusi numero</h2>
         <NumberForm state={this.state} addNewPerson={this.addNewPerson}
           handleNameChange={this.handleNameChange} handleNumberChange={this.handleNumberChange} />
-        <Numbers state={this.state} />
+        <Numbers state={this.state} remove={this.remove} />
       </div>
     )
   }
