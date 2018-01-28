@@ -2,21 +2,26 @@ import React from 'react';
 import Numbers from './components/Numbers'
 import FilterField from './components/FilterField'
 import NumberForm from './components/NumberForm'
+import axios from 'axios'
 
 class App extends React.Component {
   constructor(props) {
+    console.log('constructor')
     super(props)
     this.state = {
-      persons: [
-        { name: 'Arto Hellas', number: '040-123456' },
-        { name: 'Martti Tienari', number: '040-123456' },
-        { name: 'Arto Järvinen', number: '040-123456' },
-        { name: 'Lea Kutvonen', number: '040-123456' }
-      ],
+      persons: [],
       newName: '',
       newNumber: '',
       filter: ''
     }
+  }
+
+  componentWillMount() {
+    console.log("mounting")
+    axios.get('http://localhost:3001/persons')
+    .then(response => {
+      this.setState({persons: response.data})
+    })
   }
 
   addNewPerson = (event) => {
@@ -51,6 +56,7 @@ class App extends React.Component {
   }
 
   render() {
+    console.log('render')
     return (
       <div>
         <h1>Puhelinluettelo</h1>
