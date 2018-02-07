@@ -26,31 +26,33 @@ class App extends React.Component {
 
   changePerson = (id, newPerson) => {
     personService
-    .update(id, newPerson)
-    .then(changed => this.setState({
-      persons: this.state.persons.map(person => person.id === id ? changed : person),
-      newName: '',
-      newNumber: '',
-      message: {
-        text: `henkilön ${newPerson.name} numeroksi vaihdettu ${newPerson.number}`,
-        type: 'change'
-      }
-    }))
-    .catch(error => {
-      this.componentWillMount()
-      this.createPerson(newPerson)
-    })
+      .update(id, newPerson)
+      .then(changed => this.setState({
+        persons: this.state.persons.map(person => person.id === id ? changed : person),
+        newName: '',
+        newNumber: '',
+        message: {
+          text: `henkilön ${newPerson.name} numeroksi vaihdettu ${newPerson.number}`,
+          type: 'change'
+        }
+      }))
+      .catch(error => {
+        this.componentWillMount()
+        this.createPerson(newPerson)
+      })
   }
 
   createPerson = (newPerson) => {
     personService
-    .create(newPerson)
-    .then(persons => this.setState({
-      persons: this.state.persons.concat(newPerson),
-      newName: '',
-      newNumber: '',
-      message: { text: `lisättiin ${newPerson.name}`, type: 'add' }
-    }))
+      .create(newPerson)
+      .then(added => {
+        this.setState({
+          persons: this.state.persons.concat(added),
+          newName: '',
+          newNumber: '',
+          message: { text: `lisättiin ${added.name}`, type: 'add' }
+        })
+      })
   }
 
   addNewPerson = (event) => {

@@ -1,0 +1,10 @@
+ohjelmoitirajapinnan => puttuu n
+voimivan
+mielstä
+delpoy.sh
+repositorioin
+kaikki tehtävälinkit rikki :(
+tehtävissä typo: fronendin
+sellasiella
+virhetilainteiden
+findOneAndUpdate vs findByIdAndUpdate
