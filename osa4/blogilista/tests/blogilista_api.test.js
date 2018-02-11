@@ -118,7 +118,7 @@ describe('deleting blogs', async () => {
         await addedBlog.save()
     })
 
-    test('404 returned by DELETE /api/blogs/id to missing id', async () => {
+    test('404 returned by DELETE /api/blogs/id to valid missing id', async () => {
         const validMissingId = await helper.nonExistingValidId()
         const notesBeforeOperation = await helper.blogsInDB()
 
@@ -151,6 +151,74 @@ describe('deleting blogs', async () => {
             .expect(400)
 
         expect(res.body.error).toBe('malformatted id')
+
+        const notesAfterOperation = await helper.blogsInDB()
+        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length)
+    })
+})
+
+describe('updating blogs', async () => {
+    let addedBlog
+
+    beforeAll(async () => {
+        addedBlog = new Blog({
+            author: "will be updated by HTTP UPDATE",
+            title: "will be updated by HTTP UPDATE",
+            url: "will be updated by HTTP UPDATE"
+        })
+        await api.post('/api/blogs').send(addedBlog)
+    })
+
+    test('PUT /api/blogs/id updates likes', async () => {
+        const notesBeforeOperation = await helper.blogsInDB()
+
+        const changedBlog = {
+            author: 'updated with HTTP UPDATE',
+            title: 'updated with HTTP UPDATE',
+            url: 'updated with HTTP UPDATE',
+            likes: 42,
+            id: addedBlog._id
+        }
+
+        const res = await api
+            .put(`/api/blogs/${addedBlog._id}`, changedBlog)
+            .send(changedBlog)
+            .expect(200)
+
+        const notesAfterOperation = await helper.blogsInDB()
+        await expect(notesAfterOperation.find(blog => {
+            (blog.author === addedBlog.author
+                && blog.title === addedBlog.title
+                && blog.url === addedBlog.url)
+        })).toBeUndefined()
+
+        expect(notesAfterOperation.find(blog => 
+            (blog.url===changedBlog.url && blog.title===changedBlog.title)).likes).toBe(42)
+        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length)
+    })
+
+    test('400 returned by PUT /api/blogs/id to malformatted id', async () => {
+        const notesBeforeOperation = await helper.blogsInDB()
+
+        const res = await api
+            .put(`/api/blogs/xyzasd`)
+            .send(addedBlog)
+            .expect(400)
+
+        expect(res.body.error).toBe('malformatted id')
+
+        const notesAfterOperation = await helper.blogsInDB()
+        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length)
+    })
+
+    test('404 returned by PUT /api/blogs/id to missing id', async () => {
+        const validMissingId = await helper.nonExistingValidId()
+        const notesBeforeOperation = await helper.blogsInDB()
+
+        await api
+            .put(`/api/blogs/${validMissingId}`, addedBlog)
+            .send(addedBlog)
+            .expect(404)
 
         const notesAfterOperation = await helper.blogsInDB()
         expect(notesAfterOperation.length).toBe(notesBeforeOperation.length)
