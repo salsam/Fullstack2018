@@ -32,6 +32,27 @@ const mostBlogs = (blogs) => {
     return best
 }
 
+const mostLikes = (blogs) => {
+    if (blogs.length === 0) {
+        return null
+    }
+    const ams = blogs.reduce((names,blog) => {
+        blog.author in names ? names[blog.author]+=blog.likes : names[blog.author]=blog.likes
+        return names
+    }, {})
+
+    const best={}
+
+    for (name in ams) {
+        if (!best.author || ams[name] > best.votes) {
+            best.author=name,
+            best.votes=ams[name]
+        }
+    }
+
+    return best
+}
+
 const totalLikes = (blogs) => {
     return blogs.map(blogs => blogs.likes).reduce((acc, cum) => acc + cum, 0)
 }
@@ -40,5 +61,6 @@ module.exports = {
     dummy,
     favouriteBlog,
     mostBlogs,
+    mostLikes,
     totalLikes
 }
