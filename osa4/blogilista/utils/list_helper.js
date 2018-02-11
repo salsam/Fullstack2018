@@ -12,8 +12,16 @@ const favouriteBlog = (blogs) => {
     return blogs.find(blog => blog.likes === mostLikes)
 }
 
+const mostBlogs = (blogs) => {
+    if (blogs.length === 0) {
+        return null
+    }
+
+
+}
+
 const totalLikes = (blogs) => {
-    return blogs.map(blogs => blogs.likes).reduce((acc, cum) => acc + cum, 0)
+    return blogs.reduce((acc, cum) => acc.likes + cum.likes, 0)
 }
 
 module.exports = {
