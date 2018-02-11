@@ -106,3 +106,26 @@ test('a valid blog can be added', async () => {
     expect(response.body.length).toBe(initialBlogs.length + 1)
     expect(response.body).toContainEqual(newBlog)
 })
+
+test('likes set to zero for new blogs if uninitialized', async () => {
+    const newBlog = {
+        __v: 0,
+        _id: "5a806b77aae20e63a60664af",
+        author: "testauthor",
+        title: "testitle",
+        url: "testurl"
+    }
+
+    await api.post('/api/blogs').send(newBlog)
+    const response = await api.get('/api/blogs')
+    const match = response.body.find(blog => blog._id === newBlog._id)
+
+    expect(match).toEqual({
+        __v: 0,
+        _id: "5a806b77aae20e63a60664af",
+        author: "testauthor",
+        title: "testitle",
+        url: "testurl",
+        likes: 0
+    })
+})
