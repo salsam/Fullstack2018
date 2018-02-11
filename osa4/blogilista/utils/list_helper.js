@@ -20,8 +20,7 @@ const mostBlogs = (blogs) => {
         return names
     }, {})
 
-    const best = { author: "A", blogs: -1}
-
+    const best = { author: "", blogs: -1}
     for (name in ams) {
         if (ams[name] > best.blogs) {
             best.author=name,
