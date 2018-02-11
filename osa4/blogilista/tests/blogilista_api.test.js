@@ -2,157 +2,157 @@ const supertest = require('supertest')
 const { app, server } = require('../index')
 const api = supertest(app, server)
 const Blog = require('../models/blog')
-
-
-const initialBlogs = [
-    {
-        _id: "5a422a851b54a676234d17f7",
-        title: "React patterns",
-        author: "Michael Chan",
-        url: "https://reactpatterns.com/",
-        likes: 7,
-        __v: 0
-    },
-    {
-        _id: "5a422aa71b54a676234d17f8",
-        title: "Go To Statement Considered Harmful",
-        author: "Edsger W. Dijkstra",
-        url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
-        likes: 5,
-        __v: 0
-    },
-    {
-        _id: "5a422b3a1b54a676234d17f9",
-        title: "Canonical string reduction",
-        author: "Edsger W. Dijkstra",
-        url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
-        likes: 12,
-        __v: 0
-    },
-    {
-        _id: "5a422b891b54a676234d17fa",
-        title: "First class tests",
-        author: "Robert C. Martin",
-        url: "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
-        likes: 10,
-        __v: 0
-    },
-    {
-        _id: "5a422ba71b54a676234d17fb",
-        title: "TDD harms architecture",
-        author: "Robert C. Martin",
-        url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
-        likes: 0,
-        __v: 0
-    },
-    {
-        _id: "5a422bc61b54a676234d17fc",
-        title: "Type wars",
-        author: "Robert C. Martin",
-        url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
-        likes: 2,
-        __v: 0
-    }
-]
-
-beforeAll(async () => {
-    await Blog.remove({})
-
-    const blogs = initialBlogs.map(blog => new Blog(blog))
-    const promises = blogs.map(blog => blog.save())
-    await Promise.all(promises)
-})
+const helper = require('./test_helper')
 
 afterAll(() => {
     server.close()
 })
 
-test('blogs are returned as json', async () => {
-    await api
-        .get('/api/blogs')
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
-})
+describe('when there is initially blogs in database', () => {
+    beforeAll(async () => {
+        await Blog.remove({})
+        const blogs = helper.initialBlogs.map(blog => new Blog(blog))
+        const promises = blogs.map(blog => blog.save())
+        await Promise.all(promises)
+    })
 
-test('correct number of blogs is returned', async () => {
-    const response = await api.get('/api/blogs')
-    expect(response.body.length).toBe(initialBlogs.length)
-})
+    test('blogs are returned as json by GET /api/blogs', async () => {
+        await api
+            .get('/api/blogs')
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+    })
 
-test('returned blogs contains all initial blogs', async () => {
-    const response = await api.get('/api/blogs')
+    test('correct number of blogs is returned by GET /api/blogs', async () => {
+        const response = await api.get('/api/blogs')
+        expect(response.body.length).toBe(helper.initialBlogs.length)
+    })
 
-    initialBlogs.forEach(initialBlog => {
-        expect(response.body).toContainEqual(initialBlog)
+    test('blogs returned by GET /api/blogs contain all initial blogs', async () => {
+        const blogs = await helper.blogsInDB()
+        helper.initialBlogs.forEach(initialBlog => {
+            expect(blogs).toContainEqual(initialBlog)
+        })
     })
 })
 
-test('a valid blog can be added', async () => {
-    const newBlog = {
-        __v: 0,
-        _id: "5a806b77aae20e63a60664af",
-        author: "testauthor",
-        likes: 42,
-        title: "testitle",
-        url: "testurl"
-    }
+describe('test adding blogs to db', async () => {
+    test('POST /api/blogs succeeds with valid data', async () => {
+        const notesBeforeOperation = await helper.blogsInDB()
 
-    await api.post('/api/blogs')
-        .send(newBlog)
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
+        const newBlog = {
+            author: "test adding valid blogs",
+            likes: 42,
+            title: "test adding valid blogs",
+            url: "test adding valid blogs"
+        }
 
-    const response = await api.get('/api/blogs')
-    expect(response.body.length).toBe(initialBlogs.length + 1)
-    expect(response.body).toContainEqual(newBlog)
-})
+        await api.post('/api/blogs')
+            .send(newBlog)
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
 
-test('likes set to zero for new blogs if uninitialized', async () => {
-    const newBlog = {
-        __v: 0,
-        _id: "5a806b77aae20e63a60664ae",
-        author: "testauthor",
-        title: "testitle",
-        url: "testurl"
-    }
+        const notesAfterOperation = await helper.blogsInDB()
+        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length + 1)
+        expect(notesAfterOperation).toContainEqual(newBlog)
+    })
 
-    await api.post('/api/blogs').send(newBlog)
-    const response = await api.get('/api/blogs')
-    const match = response.body.find(blog => blog._id === newBlog._id)
+    test('likes set to zero for valid blog if uninitialized for POST /api/blogs', async () => {
+        const newBlog = {
+            author: "likes initialized to zero",
+            title: "likes initialized to zero",
+            url: "likes initialized to zero"
+        }
 
-    expect(match).toEqual({
-        __v: 0,
-        _id: "5a806b77aae20e63a60664ae",
-        author: "testauthor",
-        title: "testitle",
-        url: "testurl",
-        likes: 0
+        await api.post('/api/blogs').send(newBlog)
+        const notesAfterOperation = await helper.blogsInDB()
+        const match = notesAfterOperation.find(blog => (
+            blog.author === newBlog.author
+            && blog.author === newBlog.author
+            && blog.title === newBlog.title
+            && blog.url === newBlog.url
+        ))
+
+        expect(match).toEqual({
+            author: "likes initialized to zero",
+            title: "likes initialized to zero",
+            url: "likes initialized to zero",
+            likes: 0
+        })
+    })
+
+    test('response status 400 for POST /api/blogs if no url set', async () => {
+        const newBlog = {
+            author: "no url set",
+            title: "no url set",
+            likes: 7
+        }
+
+        await api.post('/api/blogs')
+            .send(newBlog)
+            .expect(400)
+    })
+
+    test('response status 400 for POST /api/blogs if no title set', async () => {
+        const newBlog = {
+            author: "missing title",
+            url: "missing title",
+            likes: 0
+        }
+
+        await api.post('/api/blogs')
+            .send(newBlog)
+            .expect(400)
     })
 })
 
-test('response status 400 if no url set', async () => {
-    const newBlog = {
-        __v: 0,
-        _id: "5a806b77aae20e63a60664ab",
-        author: "testauthor",
-        title: "testitle"
-    }
+describe('deleting blogs', async () => {
+    let addedBlog
 
-    await api.post('/api/blogs')
-        .send(newBlog)
-        .expect(400)
-})
+    beforeAll(async () => {
+        addedBlog = new Blog({
+            author: "deleted with HTTP DELETE",
+            title: "deleted with HTTP DELETE",
+            url: "deleted with HTTP DELETE"
+        })
+        await addedBlog.save()
+    })
 
-test('response status 400 if no title set', async () => {
-    const newBlog = {
-        __v: 0,
-        _id: "5a806b77aae20e63a60664ac",
-        author: "testauthor",
-        url: "testurl",
-        likes: 0
-    }
+    test('404 returned by DELETE /api/blogs/id to missing id', async () => {
+        const validMissingId = await helper.nonExistingValidId()
+        const notesBeforeOperation = await helper.blogsInDB()
 
-    await api.post('/api/blogs')
-        .send(newBlog)
-        .expect(400)
+        await api
+            .delete(`/api/blogs/${validMissingId}`)
+            .expect(404)
+
+        const notesAfterOperation = await helper.blogsInDB()
+        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length)
+    })
+
+    test('204 returned by successful DELETE to /api/blogs/id', async () => {
+        const notesBeforeOperation = await helper.blogsInDB()
+
+
+        await api
+            .delete(`/api/blogs/${addedBlog._id}`)
+            .expect(204)
+
+        const notesAfterOperation = await helper.blogsInDB()
+        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length - 1)
+        expect(notesAfterOperation).not.toContainEqual(addedBlog)
+    })
+
+    test('400 returned by DELETE /api/blogs/id to malformatted id', async () => {
+        const notesBeforeOperation = await helper.blogsInDB()
+
+        const res = await api
+            .delete(`/api/blogs/xyz`)
+            .expect(400)
+
+        expect(res.body.error).toBe('malformatted id')
+
+        const notesAfterOperation = await helper.blogsInDB()
+        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length)
+    })
 })
