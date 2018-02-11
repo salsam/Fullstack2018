@@ -110,7 +110,7 @@ test('a valid blog can be added', async () => {
 test('likes set to zero for new blogs if uninitialized', async () => {
     const newBlog = {
         __v: 0,
-        _id: "5a806b77aae20e63a60664af",
+        _id: "5a806b77aae20e63a60664ae",
         author: "testauthor",
         title: "testitle",
         url: "testurl"
@@ -122,10 +122,37 @@ test('likes set to zero for new blogs if uninitialized', async () => {
 
     expect(match).toEqual({
         __v: 0,
-        _id: "5a806b77aae20e63a60664af",
+        _id: "5a806b77aae20e63a60664ae",
         author: "testauthor",
         title: "testitle",
         url: "testurl",
         likes: 0
     })
+})
+
+test('response status 400 if no url set', async () => {
+    const newBlog = {
+        __v: 0,
+        _id: "5a806b77aae20e63a60664ab",
+        author: "testauthor",
+        title: "testitle"
+    }
+
+    await api.post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
+})
+
+test('response status 400 if no title set', async () => {
+    const newBlog = {
+        __v: 0,
+        _id: "5a806b77aae20e63a60664ac",
+        author: "testauthor",
+        url: "testurl",
+        likes: 0
+    }
+
+    await api.post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
 })
