@@ -4,6 +4,7 @@ const app = express()
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const blogsRouter = require('./controllers/blogs')
+const userRouter = require('./controllers/users')
 const mongoose = require('mongoose')
 const config = require('./utils/config')
 
@@ -14,6 +15,7 @@ mongoose.connect(config.mongoUrl)
 mongoose.Promise = global.Promise
 
 app.use('/api/blogs', blogsRouter)
+app.use('/api/users', userRouter)
 
 const server = http.createServer(app)
 
