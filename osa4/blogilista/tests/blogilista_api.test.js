@@ -55,7 +55,12 @@ describe('test adding blogs to db', async () => {
 
         const notesAfterOperation = await blogsInDb()
         expect(notesAfterOperation.length).toBe(notesBeforeOperation.length + 1)
-        expect(notesAfterOperation).toContainEqual(newBlog)
+        expect(notesAfterOperation.find(blog => (
+            blog.author === newBlog.author &&
+            blog.likes === newBlog.likes &&
+            blog.title === newBlog.title &&
+            blog.url === newBlog.url
+        ))).not.toBeUndefined()
     })
 
     test('likes set to zero for valid blog if uninitialized for POST /api/blogs', async () => {
@@ -74,12 +79,12 @@ describe('test adding blogs to db', async () => {
             && blog.url === newBlog.url
         ))
 
-        expect(match).toEqual({
-            author: "likes initialized to zero",
-            title: "likes initialized to zero",
-            url: "likes initialized to zero",
-            likes: 0
+
+        Object.keys(newBlog).forEach(key => {
+            expect(match.key).toBe(newBlog.key)
         })
+
+        expect(match.likes).toBe(0)
     })
 
     test('response status 400 for POST /api/blogs if no url set', async () => {

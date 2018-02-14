@@ -15,18 +15,15 @@ const mostBlogs = (blogs) => {
     if (blogs.length === 0) {
         return null
     }
-    const ams = blogs.reduce((names,blog) => {
-        blog.author in names ? names[blog.author]++ : names[blog.author]=1
+    var best = { author: blogs[0].author, blogs: 1 }
+
+    const ams = blogs.reduce((names, blog) => {
+        blog.author in names ? names[blog.author]++ : names[blog.author] = 1
+        if (names[blog.author] > best.blogs) {
+            best = { author: blog.author, blogs: names[blog.author] }
+        }
         return names
     }, {})
-
-    const best = { author: "", blogs: -1}
-    for (name in ams) {
-        if (ams[name] > best.blogs) {
-            best.author=name,
-            best.blogs=ams[name]
-        }
-    }
 
     return best
 }
@@ -35,17 +32,16 @@ const mostLikes = (blogs) => {
     if (blogs.length === 0) {
         return null
     }
-    const ams = blogs.reduce((names,blog) => {
-        blog.author in names ? names[blog.author]+=blog.likes : names[blog.author]=blog.likes
+    var best = {}
+    const ams = blogs.reduce((names, blog) => {
+        blog.author in names ? names[blog.author] += blog.likes : names[blog.author] = blog.likes
         return names
     }, {})
 
-    const best={}
-
     for (name in ams) {
         if (!best.author || ams[name] > best.votes) {
-            best.author=name,
-            best.votes=ams[name]
+            best.author = name,
+                best.votes = ams[name]
         }
     }
 

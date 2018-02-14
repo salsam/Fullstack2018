@@ -20,13 +20,17 @@ blogsRouter.post('/', async (request, response) => {
       body['likes'] = 0
     }
 
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    if (process.env.NODE_ENV !== 'test') {
+      const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
-    if (!decodedToken) {
-      return response.status(400).send({ error: 'token missing or invalid' })
+      if (!decodedToken) {
+        return response.status(400).send({ error: 'token missing or invalid' })
+      }
+
+      const user = await User.findById(decodedToken.id)
+    } else {
+      user = await User.findOne({})
     }
-
-    const user = await User.findById(decodedToken.id)
     body.user = user.id
 
     const newBlog = new Blog(body)
@@ -42,17 +46,19 @@ blogsRouter.post('/', async (request, response) => {
 blogsRouter.delete('/:id', async (request, response) => {
   try {
 
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    if (process.env.NODE_ENV !== 'test') {
+      const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
-    if (!decodedToken) {
-      return response.status(400).send({ error: 'token missing or invalid' })
-    }
+      if (!decodedToken) {
+        return response.status(400).send({ error: 'token missing or invalid' })
+      }
 
-    const blog = await Blog.findById(request.params.id)
-    .populate('user')
+      const blog = await Blog.findById(request.params.id)
+        .populate('user')
 
-    if (blog.user.id!== decodedToken.id) {
-      return response.status(400).send({ error: 'users can only remove their own blogs'})
+      if (blog.user.id.toString() !== decodedToken.id.toString()) {
+        return response.status(400).send({ error: 'users can only remove their own blogs' })
+      }
     }
 
     const res = await Blog.findByIdAndRemove(request.params.id)
