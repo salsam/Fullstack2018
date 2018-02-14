@@ -40,15 +40,6 @@ const initialBlogs = [
     }
 ]
 
-const format = (blog) => {
-    return {
-        title: blog.title,
-        author: blog.author,
-        url: blog.url,
-        likes:blog.likes
-    }
-}
-
 const nonExistingValidId = async () => {
     const blog = new Blog()
     await blog.save()
@@ -59,7 +50,8 @@ const nonExistingValidId = async () => {
 
 const blogsInDb = async () => {
     const res = await Blog.find({})
-    return res.map(blog => format(blog))
+    .populate('User')
+    return res.map(blog => Blog.format(blog))
 }
 
 const usersInDb = async () => {
@@ -68,5 +60,5 @@ const usersInDb = async () => {
 }
 
 module.exports = {
-    initialBlogs, format, nonExistingValidId, blogsInDb, usersInDb
+    initialBlogs, nonExistingValidId, blogsInDb, usersInDb
 }

@@ -3,7 +3,7 @@ const { app, server } = require('../index')
 const api = supertest(app, server)
 const Blog = require('../models/blog')
 const User = require('../models/user')
-const { format, initialBlogs, nonExistingValidId, blogsInDb, usersInDb } = require('./test_helper')
+const { initialBlogs, nonExistingValidId, blogsInDb, usersInDb } = require('./test_helper')
 
 afterAll(() => {
     server.close()
