@@ -20,7 +20,7 @@ blogsRouter.post('/', async (request, response) => {
       body['likes'] = 0
     }
 
-    const decodedToken = jwt.decode(request.token, process.env.SECRET)
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
     if (!decodedToken) {
       return response.status(400).send({ error: 'token missing or invalid' })
@@ -41,6 +41,20 @@ blogsRouter.post('/', async (request, response) => {
 
 blogsRouter.delete('/:id', async (request, response) => {
   try {
+
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+    if (!decodedToken) {
+      return response.status(400).send({ error: 'token missing or invalid' })
+    }
+
+    const blog = await Blog.findById(request.params.id)
+    .populate('user')
+
+    if (blog.user.id!== decodedToken.id) {
+      return response.status(400).send({ error: 'users can only remove their own blogs'})
+    }
+
     const res = await Blog.findByIdAndRemove(request.params.id)
     res ?
       response.status(204).end() :
