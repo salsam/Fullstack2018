@@ -1,0 +1,2 @@
+sbumit => submit
+kirjautuneet käyttäjän nimi=> kirjautuneen
