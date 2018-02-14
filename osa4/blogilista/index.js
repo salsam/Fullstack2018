@@ -8,9 +8,11 @@ const loginRouter = require('./controllers/login')
 const userRouter = require('./controllers/users')
 const mongoose = require('mongoose')
 const config = require('./utils/config')
+const tokenExtractor = require('./controllers/middleware')
 
 app.use(cors())
 app.use(bodyParser.json())
+app.use(tokenExtractor)
 
 mongoose.connect(config.mongoUrl)
 mongoose.Promise = global.Promise

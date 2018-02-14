@@ -10,14 +10,6 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs.map(blog => Blog.format(blog)))
 })
 
-const getTokenFrom = (request) => {
-  const authorization = request.get('authorization')
-  if (authorization && authorization.toLowerCase().startsWith('bearer')) {
-    return authorization.substring(7)
-  }
-  return null
-}
-
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
   if (!body.url || !body.title) {
@@ -28,10 +20,9 @@ blogsRouter.post('/', async (request, response) => {
       body['likes'] = 0
     }
 
-    const token = getTokenFrom(request)
-    const decodedToken = jwt.decode(token, process.env.SECRET)
+    const decodedToken = jwt.decode(request.token, process.env.SECRET)
 
-    if (!token || !decodedToken) {
+    if (!decodedToken) {
       return response.status(400).send({ error: 'token missing or invalid' })
     }
 
