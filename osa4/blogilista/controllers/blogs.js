@@ -20,6 +20,8 @@ blogsRouter.post('/', async (request, response) => {
       body['likes'] = 0
     }
 
+    let user = null
+
     if (process.env.NODE_ENV !== 'test') {
       const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
@@ -27,7 +29,7 @@ blogsRouter.post('/', async (request, response) => {
         return response.status(400).send({ error: 'token missing or invalid' })
       }
 
-      const user = await User.findById(decodedToken.id)
+      user = await User.findById(decodedToken.id.toString())
     } else {
       user = await User.findOne({})
     }
