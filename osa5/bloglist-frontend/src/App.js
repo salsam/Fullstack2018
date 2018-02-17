@@ -105,15 +105,20 @@ class App extends React.Component {
     this.setState({ user: null, notification: 'Successfully logged out' })
   }
 
-  handleLike = async () => {
-    console.log("Like")
-    this.setState({ blogs: this.state.blogs.sort((a, b) => b.likes - a.likes) })
+  addLike = async (id) => {
+    const blogs=this.state.blogs
+    const changed=blogs.find(blo=>blo._id===id)
+    changed.likes++
+    console.log(changed)
+    console.log(blogs)
+    const changedBlogs=blogs.filter(blo=>blo._id!==id).concat(changed)
+    console.log(changed)
+    //console.log(this.state.blogs.sort((a, b) => b.likes - a.likes))
+    this.setState({ blogs: changedBlogs.sort((a, b) => b.likes - a.likes) })
   }
 
   handleDelete = async (id) => {
     if (window.confirm(`delete?`)) {
-
-      
       this.setState({ blogs: this.state.blogs.filter(a => a._id !== id) })
     }
   }
@@ -125,7 +130,11 @@ class App extends React.Component {
       <div>
         <h2>Blogs</h2>
         {this.state.blogs.map(blog => {
-          return <Blog key={blog._id} blog={blog} updateBlogs={this.handleLike} handleDelete={this.handleDelete} />
+          return <Blog key={blog._id} blog={blog}
+            updateBlogs={this.addLike}
+            handleDelete={this.handleDelete}
+            showDelete={this.state.user.id.toString() === blog.user._id.toString()}
+          />
         })}
       </div>
     )

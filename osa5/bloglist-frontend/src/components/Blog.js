@@ -8,7 +8,8 @@ class Blog extends React.Component {
       detailsOn: false,
       blog: props.blog,
       updateBlogs: props.updateBlogs,
-      handleDelete: props.handleDelete
+      handleDelete: props.handleDelete,
+      showDelete: props.showDelete
     }
   }
 
@@ -29,7 +30,7 @@ class Blog extends React.Component {
 
     await blogService.update(blog._id, newBlog)
     this.setState({ blog: newBlog })
-    this.state.updateBlogs()
+    this.state.updateBlogs(blog._id)
   }
 
   handleDelete = async () => {
@@ -41,6 +42,7 @@ class Blog extends React.Component {
   render() {
     const showWhenDetailsOn = { display: this.state.detailsOn ? '' : 'none' }
     const showWhenDetailsOff = { display: this.state.detailsOn ? 'none' : '' }
+    const showDeleteWhenCanBeDeletedByUser = { display: this.state.showDelete ? '' : 'none' }
     const addedBy = this.state.blog.user === undefined ? 'unknown' : this.state.blog.user.name
 
     const blogStyle = {
@@ -53,11 +55,12 @@ class Blog extends React.Component {
     }
 
     return (
-      <div>
-        <div style={Object.assign({}, blogStyle, showWhenDetailsOff)} onClick={this.toggleDetails}>
+      <div className='wrapper'>
+        <div style={Object.assign({}, blogStyle, showWhenDetailsOff)} onClick={this.toggleDetails} 
+        className='titleLine'>
           {this.state.blog.title} {this.state.blog.author}
         </div>
-        <div style={Object.assign({}, blogStyle, showWhenDetailsOn)}>
+        <div style={Object.assign({}, blogStyle, showWhenDetailsOn)} className='details'>
           <h3 onClick={this.toggleDetails}>{this.state.blog.title} {this.state.blog.author}</h3>
           <div>{this.state.blog.url}</div>
           <div>likes {this.state.blog.likes}
@@ -65,7 +68,7 @@ class Blog extends React.Component {
           </div>
 
           <div>added by {addedBy}</div>
-          <button onClick={this.handleDelete}>delete</button>
+          <button onClick={this.handleDelete} style={showDeleteWhenCanBeDeletedByUser}>delete</button>
         </div>
       </div>
     )
