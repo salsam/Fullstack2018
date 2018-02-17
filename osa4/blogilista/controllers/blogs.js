@@ -7,7 +7,7 @@ blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog
     .find({})
     .populate('user', { username: 1, name: 1 })
-  response.json(blogs.map(blog => Blog.format(blog)))
+  response.json(blogs)
 })
 
 blogsRouter.post('/', async (request, response) => {
@@ -39,7 +39,7 @@ blogsRouter.post('/', async (request, response) => {
     const blog = await newBlog.save()
     user.blogs = user.blogs.concat(blog)
     await user.save()
-    response.status(200).json(Blog.format(blog))
+    response.status(200).json(blog)
   } catch (exception) {
     response.status(400).send({ error: exception.toString() })
   }
@@ -49,16 +49,16 @@ blogsRouter.delete('/:id', async (request, response) => {
   try {
 
     if (process.env.NODE_ENV !== 'test') {
-      const decodedToken = jwt.verify(request.token, process.env.SECRET)
-
-      if (!decodedToken) {
-        return response.status(400).send({ error: 'token missing or invalid' })
-      }
-
       const blog = await Blog.findById(request.params.id)
         .populate('user')
 
-      if (blog.user.id.toString() !== decodedToken.id.toString()) {
+      const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+      if (!decodedToken && blog.user != undefined) {
+        return response.status(400).send({ error: 'token missing or invalid' })
+      }
+
+      if (blog.user != undefined && blog.user.id.toString() !== decodedToken.id.toString()) {
         return response.status(400).send({ error: 'users can only remove their own blogs' })
       }
     }

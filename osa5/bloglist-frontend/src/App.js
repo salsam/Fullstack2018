@@ -2,6 +2,10 @@ import React from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import './App.css'
+import Togglable from './components/Togglable'
+import newBlogForm from './components/newBlogForm'
+import loginForm from './components/loginForm'
 
 class App extends React.Component {
   constructor(props) {
@@ -12,6 +16,7 @@ class App extends React.Component {
       password: '',
       user: null,
       error: '',
+      notification: '',
       title: '',
       author: '',
       url: ''
@@ -43,9 +48,18 @@ class App extends React.Component {
 
       blogService.create(newBlog)
         .then(returnedBlog =>
-          this.setState({ author: '', title: '', url: '', blogs: this.state.blogs.concat(returnedBlog) }))
+          this.setState({
+            author: '', title: '', url: '', blogs: this.state.blogs.concat(returnedBlog),
+            notification: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
+          }))
+        .then(() => {
+          setTimeout(() => {
+            this.setState({ notification: '' })
+          }, 5000)
+        })
     } catch (exception) {
       console.log(exception)
+
     }
   }
 
@@ -66,12 +80,20 @@ class App extends React.Component {
       this.setState({ username: '', password: '', user })
       window.localStorage.setItem('loggedBlogUser', JSON.stringify(user))
       blogService.setToken(user.token)
-    } catch (exception) {
       this.setState({
-        error: 'käyttäjätunnus tai salasana virheellinen',
+        notification: `Logged in as ${user.name}`
       })
       setTimeout(() => {
-        this.setState({ error: null })
+        this.setState({
+          notification: ''
+        })
+      }, 5000)
+    } catch (exception) {
+      this.setState({
+        error: 'wrong username or password',
+      })
+      setTimeout(() => {
+        this.setState({ error: '' })
       }, 5000)
     }
   }
@@ -80,94 +102,68 @@ class App extends React.Component {
     event.preventDefault()
 
     window.localStorage.removeItem('loggedBlogUser')
-    this.setState({ user: null })
+    this.setState({ user: null, notification: 'Successfully logged out' })
+  }
+
+  handleLike = async () => {
+    console.log("Like")
+    this.setState({ blogs: this.state.blogs.sort((a, b) => b.likes - a.likes) })
+  }
+
+  handleDelete = async (id) => {
+    if (window.confirm(`delete?`)) {
+
+      
+      this.setState({ blogs: this.state.blogs.filter(a => a._id !== id) })
+    }
   }
 
   render() {
     console.log("render")
-    const loginForm = () => (
-      <div>
-        <h2>Log in to application</h2>
-        <form onSubmit={this.login}>
-          <div>
-            username
-          <input
-              name='username'
-              onChange={this.handleFieldChange}
-              type='text'
-              value={this.state.username}
-            />
-          </div>
-          <div>
-            password
-          <input
-              name='password'
-              onChange={this.handleFieldChange}
-              type='password'
-              value={this.state.password}
-            />
-          </div>
-          <button type="submit">Login</button>
-        </form>
-      </div>
-    )
 
     const blogForm = () => (
       <div>
         <h2>Blogs</h2>
         {this.state.blogs.map(blog => {
-          return <Blog key={blog.title} blog={blog} />
-        }
-        )}
+          return <Blog key={blog._id} blog={blog} updateBlogs={this.handleLike} handleDelete={this.handleDelete} />
+        })}
       </div>
     )
 
-    const newBlogForm = () => (
-      <div>
-        <h2>Create new blog</h2>
-        <form onSubmit={this.create}>
-          <div>
-            title
-          <input
-              name='title'
-              onChange={this.handleFieldChange}
-              type='text'
-              value={this.state.title}
-            />
+    const notification = () => {
+      if (this.state.notification !== '') {
+        return (
+          <div className='notification'>
+            {this.state.notification}
           </div>
-          <div>
-            author
-          <input
-              name='author'
-              onChange={this.handleFieldChange}
-              type='text'
-              value={this.state.author}
-            />
+        )
+      }
+    }
+
+    const error = () => {
+      if (this.state.error !== '') {
+        return (
+          <div className='error'>
+            {this.state.error}
           </div>
-          <div>
-            url
-          <input
-              name='url'
-              onChange={this.handleFieldChange}
-              type='text'
-              value={this.state.url}
-            />
-          </div>
-          <button type="submit">Create</button>
-        </form>
-      </div>
-    )
+        )
+      }
+    }
 
     return (
       <div>
+        {notification()}
+        {error()}
         {this.state.user === null ?
-          loginForm() :
+          <Togglable buttonLabel='Login'>
+            {loginForm(this.handleFieldChange, this.login, this.state.username, this.state.password)}
+          </Togglable> :
           <div>
             <p>Logged in as {this.state.user.name}
               <button onClick={this.logout}>Logout</button>
             </p>
             {blogForm()}
-            {newBlogForm()}
+            {newBlogForm(this.create, this.handleFieldChange, this.state.author, this.state.title, this.state.url)}
           </div>}
       </div>
     )
