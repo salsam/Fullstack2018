@@ -106,13 +106,13 @@ class App extends React.Component {
   }
 
   addLike = async (id) => {
-    const blogs=this.state.blogs
-    const changed=blogs.find(blo=>blo._id===id)
+    const blogs = this.state.blogs
+    const changed = blogs.find(blo => blo._id === id)
     changed.likes++
-    console.log(changed)
-    console.log(blogs)
-    const changedBlogs=blogs.filter(blo=>blo._id!==id).concat(changed)
-    console.log(changed)
+    //console.log(changed)
+    //console.log(blogs)
+    const changedBlogs = blogs.filter(blo => blo._id !== id).concat(changed)
+    //console.log(changed)
     //console.log(this.state.blogs.sort((a, b) => b.likes - a.likes))
     this.setState({ blogs: changedBlogs.sort((a, b) => b.likes - a.likes) })
   }
@@ -124,7 +124,8 @@ class App extends React.Component {
   }
 
   render() {
-    console.log("render")
+    //console.log("render")
+    const userId = this.state.user === null ? -1 : this.state.user.id.toString()
 
     const blogForm = () => (
       <div>
@@ -133,7 +134,7 @@ class App extends React.Component {
           return <Blog key={blog._id} blog={blog}
             updateBlogs={this.addLike}
             handleDelete={this.handleDelete}
-            showDelete={this.state.user.id.toString() === blog.user._id.toString()}
+            showDelete={userId === blog.user._id.toString()}
           />
         })}
       </div>
