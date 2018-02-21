@@ -14,11 +14,11 @@ class App extends React.Component {
 
   addAnecdote = (event) => {
     event.preventDefault()
-    console.log(event.target.anecdote.value)
     this.props.store.dispatch({
       type: 'add',
       data: event.target.anecdote.value
     })
+    event.target.anecdote.value=''
   }
 
   render() {
