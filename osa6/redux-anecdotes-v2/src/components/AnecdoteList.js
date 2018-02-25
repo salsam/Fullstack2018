@@ -1,14 +1,23 @@
 import React from 'react'
-import { voteCreation } from '../reducers/anecdoteReducer'
+import { voteCreation, initAnecdotes } from '../reducers/anecdoteReducer'
 import { notificationCreation } from '../reducers/notificationReducer'
 import Filter from './Filter'
 import { connect } from 'react-redux'
+import anecdoteService from '../services/anecdotes'
 
 class AnecdoteList extends React.Component {
-  handleVote = (content, id) => () => {
-    this.props.voteCreation(id)
-    this.props.notificationCreation(`you voted for ${content}`)
+  handleVote = (anecdote) => async () => {
+    const updatedAnecdote = { ...anecdote, votes: anecdote.votes + 1 }
+    const response = await anecdoteService.update(anecdote.id, updatedAnecdote)
+    //Lazy, should just replace the whole object in frontend as well
+    this.props.voteCreation(anecdote.id)
+    this.props.notificationCreation(`you voted for ${anecdote.content}`)
     setTimeout(() => this.props.notificationCreation(''), 5000)
+  }
+
+  componentDidMount = async () => {
+    const anecdotes = await anecdoteService.getAll()
+    this.props.initAnecdotes(anecdotes)
   }
 
 
@@ -24,7 +33,7 @@ class AnecdoteList extends React.Component {
             </div>
             <div>
               has {anecdote.votes}
-              <button onClick={this.handleVote(anecdote.content, anecdote.id)}>
+              <button onClick={this.handleVote(anecdote)}>
                 vote
               </button>
             </div>
@@ -48,5 +57,5 @@ const mapStateToProps = (state) => {
 }
 export default connect(
   mapStateToProps,
-  { voteCreation, notificationCreation }
+  { voteCreation, notificationCreation, initAnecdotes }
 )(AnecdoteList)
