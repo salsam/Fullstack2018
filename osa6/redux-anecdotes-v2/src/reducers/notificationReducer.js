@@ -1,11 +1,19 @@
 const initialNotification = 'Notifications will appear here!'
 
 const notificationReducer = (state = initialNotification, action) => {
-  switch (action.type) {
-  case 'SETNOTIFICATION':
-    return state
-  default:
-    return state
+  console.log(action)
+  if (action.type === 'SET') {
+    return action.content
+  } else if (action.type === 'CREATE') {
+    return `created ${action.content}`
+  }
+  return state
+}
+
+export const notificationCreation = (content) => {
+  return {
+    type: 'SET',
+    content
   }
 }
 

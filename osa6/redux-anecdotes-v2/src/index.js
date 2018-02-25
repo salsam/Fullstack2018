@@ -11,7 +11,5 @@ const render = () => {
   )
 }
 
-console.log(store.getState())
-
 render()
 store.subscribe(render)
