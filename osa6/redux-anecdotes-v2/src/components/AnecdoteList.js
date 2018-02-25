@@ -2,24 +2,22 @@ import React from 'react'
 import { voteCreation } from '../reducers/anecdoteReducer'
 import { notificationCreation } from '../reducers/notificationReducer'
 import Filter from './Filter'
+import { connect } from 'react-redux'
 
 class AnecdoteList extends React.Component {
   handleVote = (content, id) => () => {
-    this.props.store.dispatch(voteCreation(id))
-    this.props.store.dispatch(notificationCreation(`you voted for ${content}`))
-    setTimeout(() => this.props.store.dispatch(notificationCreation('')), 5000)
+    this.props.voteCreation(id)
+    this.props.notificationCreation(`you voted for ${content}`)
+    setTimeout(() => this.props.notificationCreation(''), 5000)
   }
 
 
   render() {
-    const state = this.props.store.getState()
-    const anecdotes = state.anecdotes
-      .filter(anecdote => anecdote.content.match(new RegExp(state.filter, 'gi')))
     return (
       <div>
         <h2>Anecdotes</h2>
-        <Filter store={this.props.store} />
-        {anecdotes.sort((a, b) => b.votes - a.votes).map(anecdote =>
+        <Filter />
+        {this.props.anecdotesToShow.map(anecdote =>
           <div key={anecdote.id}>
             <div>
               {anecdote.content}
@@ -37,4 +35,18 @@ class AnecdoteList extends React.Component {
   }
 }
 
-export default AnecdoteList
+const filteredAncedotes = (anecdotes, filter) => {
+  return anecdotes
+    .filter(anecdote => anecdote.content.match(new RegExp(filter, 'gi')))
+    .sort((a, b) => b.votes - a.votes)
+}
+
+const mapStateToProps = (state) => {
+  return {
+    anecdotesToShow: filteredAncedotes(state.anecdotes, state.filter)
+  }
+}
+export default connect(
+  mapStateToProps,
+  { voteCreation, notificationCreation }
+)(AnecdoteList)
