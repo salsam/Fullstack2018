@@ -1,13 +1,25 @@
 import React from 'react'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import { NavLink, BrowserRouter as Router, Route, Link } from 'react-router-dom'
 
-const Menu = () => (
-  <div>
-    <Link to='/'>anecdotes </Link> &nbsp;
-    <Link to='/create'>create new</Link> &nbsp;
-    <Link to='/about'>about</Link>
-  </div>
-)
+const Menu = () => {
+  const menuStyle = {
+    backgroundColor: 'lightblue'
+  }
+
+  const activeStyle = {
+    ackgroundColor: 'purple',
+    color: 'red',
+    fontWeight: 'bold'
+  }
+
+  return (
+    <div style={menuStyle}>
+      <NavLink exact to='/' activeStyle={activeStyle}>anecdotes </NavLink> &nbsp;
+      <NavLink exact to='/create' activeStyle={activeStyle}>create new</NavLink> &nbsp;
+      <NavLink exact to='/about' activeStyle={activeStyle}>about</NavLink>
+    </div>
+  )
+}
 
 const Anecdote = ({ anecdote }) => (
   <div>
@@ -133,7 +145,7 @@ class App extends React.Component {
       anecdotes: this.state.anecdotes.concat(anecdote),
       notification: `a new anecdote ${anecdote.content} created`
     })
-    setTimeout(() => this.setState({ notification: ' ' }), 10000)
+    setTimeout(() => this.setState({ notification: '' }), 10000)
   }
 
   anecdoteById = (id) =>
@@ -153,13 +165,24 @@ class App extends React.Component {
   }
 
   render() {
+    const notificationStyle = {
+      color: 'green',
+      borderStyle: 'solid',
+      borderColor: 'orange',
+      margin: '25px',
+      fontSize: '32px',
+      display: this.state.notification === '' ? 'none' : ''
+    }
+
     return (
       <div>
         <Router>
           <div>
             <h1>Software anecdotes</h1>
             <Menu />
-            {this.state.notification}
+            <div style={notificationStyle}>
+              {this.state.notification}
+            </div>
             <Route exact path='/' render={() => <AnecdoteList anecdotes={this.state.anecdotes} />} />
             <Route exact path='/about' render={() => <About />} />
             <Route exact path='/create' render={({ history }) => <CreateNew addNew={this.addNew} history={history} />} />
