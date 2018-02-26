@@ -1,24 +1,31 @@
 import React from 'react'
 import { NavLink, BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import { Container, Table, Grid, Image, Form, Button, Message, Menu, Segment } from 'semantic-ui-react'
 
-const Menu = () => {
-  const menuStyle = {
-    backgroundColor: 'lightblue'
+class MenuComponent extends React.Component {
+  state = { activeItem: 'anecdotes' }
+
+  handleItemClick = (e, { name }) => this.setState({ activeItem: name })
+
+  render() {
+    const { activeItem } = this.state
+
+    return (
+      <Segment inverted>
+        <Menu inverted secondary>
+          <Menu.Item name='anecdotes' active={activeItem === 'anecdotes'} onClick={this.handleItemClick} color='red'>
+            <NavLink exact to='/'>anecdotes </NavLink>
+          </Menu.Item>
+          <Menu.Item name='create' active={activeItem === 'create'} onClick={this.handleItemClick} color='red'>
+            <NavLink exact to='/create'>create new</NavLink>
+          </Menu.Item>
+          <Menu.Item name='about' active={activeItem === 'about'} onClick={this.handleItemClick} color='red'>
+            <NavLink exact to='/about'>about</NavLink>
+          </Menu.Item>
+        </Menu>
+      </Segment>
+    )
   }
-
-  const activeStyle = {
-    ackgroundColor: 'purple',
-    color: 'red',
-    fontWeight: 'bold'
-  }
-
-  return (
-    <div style={menuStyle}>
-      <NavLink exact to='/' activeStyle={activeStyle}>anecdotes </NavLink> &nbsp;
-      <NavLink exact to='/create' activeStyle={activeStyle}>create new</NavLink> &nbsp;
-      <NavLink exact to='/about' activeStyle={activeStyle}>about</NavLink>
-    </div>
-  )
 }
 
 const Anecdote = ({ anecdote }) => (
@@ -32,27 +39,45 @@ const Anecdote = ({ anecdote }) => (
 const AnecdoteList = ({ anecdotes }) => (
   <div>
     <h2>Anecdotes</h2>
-    <ul>
-      {anecdotes.map(anecdote =>
-        <li key={anecdote.id} >
-          <Link to={`/notes/${anecdote.id}`} >{anecdote.content}</Link>
-        </li>)}
-    </ul>
+    <Table striped celled>
+      <Table.Body>
+        {anecdotes.map(anecdote =>
+          <Table.Row key={anecdote.id} >
+            <Table.Cell>
+              <Link to={`/notes/${anecdote.id}`} >{anecdote.content}</Link>
+            </Table.Cell>
+          </Table.Row>)}
+      </Table.Body>
+    </Table>
   </div>
 )
 
 const About = () => (
-  <div>
-    <h2>About anecdote app</h2>
-    <p>According to Wikipedia:</p>
-
-    <em>An anecdote is a brief, revealing account of an individual person or an incident.
-      Occasionally humorous, anecdotes differ from jokes because their primary purpose is not simply to provoke laughter but to reveal a truth more general than the brief tale itself,
-      such as to characterize a person by delineating a specific quirk or trait, to communicate an abstract idea about a person, place, or thing through the concrete details of a short narrative.
-      An anecdote is "a story with a point."</em>
-
-    <p>Software engineering is full of excellent anecdotes, at this app you can find the best and add more.</p>
-  </div>
+  <Grid>
+    <br />
+    <Grid.Row>
+      <h2>About anecdote app</h2>
+    </Grid.Row>
+    <Grid.Row>
+      <p>According to Wikipedia:</p>
+    </Grid.Row>
+    <Grid.Row stretched>
+      <Grid.Column width={7}>
+        <div>
+          An anecdote is a brief, revealing account of an individual person or an incident.
+          Occasionally humorous, anecdotes differ from jokes because their primary purpose is not simply to provoke laughter but to reveal a truth more general than the brief tale itself,
+          such as to characterize a person by delineating a specific quirk or trait, to communicate an abstract idea about a person, place, or thing through the concrete details of a short narrative.
+          An anecdote is "a story with a point."
+      </div>
+      </Grid.Column>
+      <Grid.Column width={3}>
+        <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Edsger_Wybe_Dijkstra.jpg/450px-Edsger_Wybe_Dijkstra.jpg" />
+      </Grid.Column>
+    </Grid.Row>
+    <Grid.Row>
+      <div>Software engineering is full of excellent anecdotes, at this app you can find the best and add more.</div>
+    </Grid.Row>
+  </Grid>
 )
 
 const Footer = () => (
@@ -93,21 +118,21 @@ class CreateNew extends React.Component {
     return (
       <div>
         <h2>create a new anecdote</h2>
-        <form onSubmit={this.handleSubmit}>
-          <div>
-            content
+        <Form onSubmit={this.handleSubmit}>
+          <Form.Field>
+            <label>content</label>
             <input name='content' value={this.state.content} onChange={this.handleChange} />
-          </div>
-          <div>
-            author
+          </Form.Field>
+          <Form.Field>
+            <label>author</label>
             <input name='author' value={this.state.author} onChange={this.handleChange} />
-          </div>
-          <div>
-            url for more info
+          </Form.Field>
+          <Form.Field>
+            <label>url for more info</label>
             <input name='info' value={this.state.info} onChange={this.handleChange} />
-          </div>
-          <button>create</button>
-        </form>
+          </Form.Field>
+          <Button type='submit'>create</Button>
+        </Form>
       </div>
     )
 
@@ -135,7 +160,7 @@ class App extends React.Component {
           id: '2'
         }
       ],
-      notification: ''
+      notification: null
     }
   }
 
@@ -145,7 +170,7 @@ class App extends React.Component {
       anecdotes: this.state.anecdotes.concat(anecdote),
       notification: `a new anecdote ${anecdote.content} created`
     })
-    setTimeout(() => this.setState({ notification: '' }), 10000)
+    setTimeout(() => this.setState({ notification: null }), 10000)
   }
 
   anecdoteById = (id) =>
@@ -165,24 +190,17 @@ class App extends React.Component {
   }
 
   render() {
-    const notificationStyle = {
-      color: 'green',
-      borderStyle: 'solid',
-      borderColor: 'orange',
-      margin: '25px',
-      fontSize: '32px',
-      display: this.state.notification === '' ? 'none' : ''
-    }
 
     return (
-      <div>
+      <Container>
         <Router>
           <div>
             <h1>Software anecdotes</h1>
-            <Menu />
-            <div style={notificationStyle}>
-              {this.state.notification}
-            </div>
+            <MenuComponent />
+            {(this.state.notification &&
+              <Message success>
+                {this.state.notification}
+              </Message>)}
             <Route exact path='/' render={() => <AnecdoteList anecdotes={this.state.anecdotes} />} />
             <Route exact path='/about' render={() => <About />} />
             <Route exact path='/create' render={({ history }) => <CreateNew addNew={this.addNew} history={history} />} />
@@ -194,7 +212,7 @@ class App extends React.Component {
         <div>
           <Footer />
         </div>
-      </div>
+      </Container>
     );
   }
 }
