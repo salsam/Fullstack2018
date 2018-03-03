@@ -2,19 +2,31 @@ import React from 'react'
 import Notification from './components/Notification'
 import blogService from './services/blogs'
 import { setNotification } from './reducers/notificationReducer'
-import { like, initializeBlogs, deleteBlog } from './reducers/blogReducer'
+import { like, initializeBlogs, deleteBlog, comment } from './reducers/blogReducer'
 import { login, logout } from './reducers/userReducer'
 import { initializeUsers } from './reducers/usersReducer'
 import { connect } from 'react-redux'
 import LoginForm from './components/LoginForm'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
-import { Table, Container, Segment, Menu, Button } from 'semantic-ui-react'
+import { Redirect, BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import { Table, Container, Segment, Menu, Button, Form } from 'semantic-ui-react'
 import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
 
-const SingleBlogView = ({ blog, like, remove, deletable }) => {
+let count = 1
+
+const genId = () => {
+  count += 1
+  return count - 1
+}
+
+const SingleBlogView = ({ blog, like, remove, deletable, comment }) => {
   const adder = blog.user ? blog.user.name : 'anonymous'
-  console.log(deletable)
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    comment(e.target.comment.value)
+    e.target.comment.value = ''
+  }
 
   return (
     <div>
@@ -33,6 +45,17 @@ const SingleBlogView = ({ blog, like, remove, deletable }) => {
         </div>
         {deletable && <div><button onClick={remove}>delete</button></div>}
       </div>
+      <h2>comments</h2>
+      <ul>
+        {blog.comments.map(comment =>
+          <li key={genId()}>{comment}</li>)}
+      </ul>
+      <Form onSubmit={handleSubmit}>
+        <Form.Field>
+          <input name="comment" />
+          <Button type='submit'>add comment</Button>
+        </Form.Field>
+      </Form>
     </div>
   )
 }
@@ -95,7 +118,6 @@ class MenuComponent extends React.Component {
 
   render() {
     const { activeItem, user } = this.state
-    console.log(this.state)
     return (
       <Segment inverted>
         <Menu inverted secondary>
@@ -128,6 +150,10 @@ class App extends React.Component {
     }
   }
 
+  handleComment = (id) => async (comment) => {
+    await this.props.comment(id, comment)
+  }
+
   notify = (message, type = 'info') => {
     this.props.setNotification(message, type, 10)
   }
@@ -144,7 +170,7 @@ class App extends React.Component {
       return
     }
 
-    this.props.deleteBlog(id)
+    await this.props.deleteBlog(id)
     this.notify(`blog '${deleted.title}' by ${deleted.author} removed`)
   }
 
@@ -161,7 +187,7 @@ class App extends React.Component {
   )
 
   renderBlogView = () => {
-    if (this.props.user === null) {
+    if (!this.props.user) {
       return <div></div>
     }
     return (
@@ -181,14 +207,15 @@ class App extends React.Component {
 
   renderSingleBlogView = (id) => {
     const blog = this.props.blogs.find(b => b._id === id)
-    if (blog === undefined) {
-      return <div></div>
+    if (!blog) {
+      return <Redirect to='/' />
     }
     return < SingleBlogView
       blog={blog}
-      like={this.like}
-      remove={this.remove}
-      deletable={blog.user === undefined || this.props.user === blog.user}
+      like={this.like(blog)}
+      remove={this.remove(blog._id)}
+      deletable={blog.user === undefined || this.props.user.username === blog.user.username}
+      comment={this.handleComment(blog._id)}
     />
   }
 
@@ -234,7 +261,7 @@ const mapStateToProps = (state) => {
 }
 
 const mapDispatchToProps = {
-  setNotification, like, initializeBlogs, deleteBlog, login, logout, initializeUsers
+  setNotification, like, initializeBlogs, deleteBlog, comment, login, logout, initializeUsers
 }
 
 export default connect(

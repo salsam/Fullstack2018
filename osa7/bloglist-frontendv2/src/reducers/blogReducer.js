@@ -14,6 +14,11 @@ const BlogReducer = (state = [], action) => {
         return state.filter(blog => blog._id !== action.data)
     } else if (action.type === 'INITIALIZE_BLOGS') {
         return action.data
+    } else if (action.type === 'COMMENT') {
+        const commented = state.find(blog => blog._id === action.id)
+        return state.map(blog => blog._id === action.id ?
+            { ...commented, comments: commented.comments.concat(action.data) } :
+            blog)
     }
     return state
 }
@@ -25,10 +30,18 @@ export const likeCreation = (id) => {
     }
 }
 
-export const createBlog = (blog,user) => {
+export const comment = (id, comment) => {
+    return {
+        type: 'COMMENT',
+        id,
+        data: comment
+    }
+}
+
+export const createBlog = (blog, user) => {
     return async (dispatch) => {
         const newBlog = await blogService.create(blog)
-        newBlog.user=user
+        newBlog.user = user
         dispatch({
             type: 'CREATE',
             data: newBlog

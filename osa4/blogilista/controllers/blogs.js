@@ -10,15 +10,37 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
+blogsRouter.post('/:id/comment', async (request, response) => {
+  const body = request.body
+  console.log(request.params.id)
+  try {
+    const blog = await Blog.findById(request.params.id)
+    const updated = {
+      author: blog.author,
+      title: blog.title,
+      url: blog.url,
+      likes: blog.likes,
+      _id: blog._id,
+      comments: blog.comments.concat(body.comment)
+    }
+    console.log(updated)
+    const res = await Blog.findByIdAndUpdate(request.params.id, updated)
+    res ?
+      response.status(200).json(res.body).end() :
+      response.status(404).end()
+  } catch (exception) {
+    response.status(400).send({ error: 'malformatted id' }).end()
+  }
+})
+
 blogsRouter.post('/', async (request, response) => {
   const body = request.body
   if (!body.url || !body.title) {
     return response.status(400).end()
   }
   try {
-    if (!body.likes) {
-      body['likes'] = 0
-    }
+    if (!body.likes) body['likes'] = 0
+    if (!body.comments) body['comments'] = []
 
     let user = null
 
@@ -83,7 +105,8 @@ blogsRouter.put('/:id', async (request, response) => {
       title: body.title,
       url: body.url,
       likes: body.likes,
-      _id: request.params.id
+      _id: request.params.id,
+      comments: body.comments
     }
     const res = await Blog.findByIdAndUpdate(request.params.id, blog)
     res ?
