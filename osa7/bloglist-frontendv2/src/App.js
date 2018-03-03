@@ -6,10 +6,65 @@ import { like, initializeBlogs, deleteBlog } from './reducers/blogReducer'
 import { login, logout } from './reducers/userReducer'
 import { connect } from 'react-redux'
 import LoginForm from './components/LoginForm'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
-import blogView from './components/BlogView'
-import { Table, Container } from 'semantic-ui-react'
+import { NavLink, BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import BlogView from './components/BlogView'
+import { Table, Container, Segment, Menu } from 'semantic-ui-react'
 import userService from './services/users'
+import Togglable from './components/Togglable'
+import BlogForm from './components/BlogForm'
+
+const SingleBlogView = ({ blog, like, remove, deletable }) => {
+  const adder = blog.user ? blog.user.name : 'anonymous'
+
+  return (
+    <div>
+      <div>
+        <h2>{blog.title} {blog.author}</h2>
+      </div>
+      <div className='content'>
+        <div>
+          <a href={blog.url}>{blog.url}</a>
+        </div>
+        <div>
+          {blog.likes} likes <button onClick={like}>like</button>
+        </div>
+        <div>
+          added by {adder}
+        </div>
+        {deletable && <div><button onClick={remove}>delete</button></div>}
+      </div>
+    </div>
+  )
+}
+
+class MenuComponent extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      activeItem: 'blogs',
+      user: props.user
+    }
+  }
+
+  handleItemClick = (e, { name }) => this.setState({ activeItem: name })
+
+  render() {
+    const { activeItem, user } = this.state
+    return (
+      <Segment inverted>
+        <Menu inverted secondary>
+          <Menu.Item name='anecdotes' active={activeItem === 'anecdotes'} onClick={this.handleItemClick} color='red'>
+            <NavLink exact to='/'>blogs</NavLink>
+          </Menu.Item>
+          <Menu.Item name='users' active={activeItem === 'users'} onClick={this.handleItemClick} color='red'>
+            <NavLink exact to='/users'>users</NavLink>
+          </Menu.Item>
+          {user !== null && <Menu.Item>Logged in as {user.name}</Menu.Item>}
+        </Menu>
+      </Segment>
+    )
+  }
+}
 
 class App extends React.Component {
   componentDidMount() {
@@ -52,15 +107,36 @@ class App extends React.Component {
   renderLoginPage = () => (
     <div>
       <LoginForm />
-      <Notification />
     </div>
   )
 
-  BlogView = () => (
-    <div>
-      {this.props.user !== null && blogView(this.props.blogs, this.props.user, this.logout, this.like, this.remove)}
-    </div>
-  )
+  renderBlogView = () => {
+    if (this.props.user === null) {
+      return <div></div>
+    }
+    return (
+      <div>
+        {this.props.blogs.map(blog =>
+          <div key={blog._id}>
+            <Link to={`/blogs/${blog._id}`}>{blog.title} {blog.author}</Link>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  renderSingleBlogView = (id) => {
+    const blog = this.props.blogs.find(b => b._id === id)
+    if (blog === undefined) {
+      return <div></div>
+    }
+    return < SingleBlogView
+      blog={blog}
+      like={this.like}
+      remove={this.remove}
+      deletable={blog.user === undefined || this.props.user === blog.user}
+    />
+  }
 
   UserView = async (users) => {
     return (
@@ -82,16 +158,22 @@ class App extends React.Component {
   render() {
     return (
       <Container>
-        <Notification />
-        {this.props.user !== null &&
-          <div>
-            {this.props.user.name} logged in <button onClick={this.logout}>logout</button>
-          </div>}
         <Router>
           <div>
+            <h3>blog app</h3>
+            <MenuComponent user={this.props.user} />
+            <Notification />
+            {this.props.user !== null &&
+              <div>
+                {this.props.user.name} logged in <button onClick={this.logout}>logout</button>
+                <Togglable buttonLabel='uusi blogi'>
+                  <BlogForm />
+                </Togglable>
+              </div>}
             {this.props.user === null && this.renderLoginPage()}
-            <Route exact path='/' render={() => <this.BlogView />} />
+            <Route exact path='/' render={() => this.renderBlogView()} />
             <Route exact path='/users' render={() => <this.UserView users={[]} />} />
+            <Route exact path='/blogs/:id' render={({ match }) => this.renderSingleBlogView(match.params.id)} />
           </div>
         </Router>
       </Container>

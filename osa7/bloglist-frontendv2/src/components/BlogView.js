@@ -2,14 +2,11 @@ import React from 'react'
 import Togglable from './Togglable'
 import BlogForm from './BlogForm'
 import Blog from './Blog'
+import { Link } from 'react-router-dom'
 
-const blogView = (blogs, user, logout, like, remove) => {
+const BlogView = ({ blogs, user, like, remove }) => {
     return (
         <div>
-            <Togglable buttonLabel='uusi blogi'>
-                <BlogForm />
-            </Togglable>
-
             <h2>blogs</h2>
             {blogs.map(blog =>
                 <Blog
@@ -24,4 +21,4 @@ const blogView = (blogs, user, logout, like, remove) => {
     );
 }
 
-export default blogView
+export default BlogView
