@@ -3,7 +3,7 @@ import Notification from './components/Notification'
 import blogService from './services/blogs'
 import { setNotification } from './reducers/notificationReducer'
 import { like, initializeBlogs, deleteBlog } from './reducers/blogReducer'
-import { login, logout } from './reducers/userReducer'
+import { login, logout, initializeUsers } from './reducers/userReducer'
 import { connect } from 'react-redux'
 import LoginForm from './components/LoginForm'
 import { NavLink, BrowserRouter as Router, Route, Link } from 'react-router-dom'
@@ -37,6 +37,23 @@ const SingleBlogView = ({ blog, like, remove, deletable }) => {
   )
 }
 
+const UserView = ({ users }) => {
+  return (
+    <div>
+      <h2>users</h2>
+      <Table striped celled>
+        <Table.Body>
+          {users.map(user =>
+            <Table.Row key={user.id}>
+              {user.name}
+            </Table.Row>
+          )}
+        </Table.Body>
+      </Table>
+    </div>
+  )
+}
+
 class MenuComponent extends React.Component {
   constructor(props) {
     super(props)
@@ -50,10 +67,11 @@ class MenuComponent extends React.Component {
 
   render() {
     const { activeItem, user } = this.state
+    console.log(this.state)
     return (
       <Segment inverted>
         <Menu inverted secondary>
-          <Menu.Item name='anecdotes' active={activeItem === 'anecdotes'} onClick={this.handleItemClick} color='red'>
+          <Menu.Item name='blogs' active={activeItem === 'blogs'} onClick={this.handleItemClick} color='red'>
             <NavLink exact to='/'>blogs</NavLink>
           </Menu.Item>
           <Menu.Item name='users' active={activeItem === 'users'} onClick={this.handleItemClick} color='red'>
@@ -69,6 +87,7 @@ class MenuComponent extends React.Component {
 class App extends React.Component {
   componentDidMount() {
     this.props.initializeBlogs()
+    this.props.initializeUsers()
 
     const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
     if (loggedUserJSON) {
@@ -140,23 +159,6 @@ class App extends React.Component {
     />
   }
 
-  UserView = async (users) => {
-    return (
-      <div>
-        <h2>users</h2>
-        <Table striped celled>
-          <Table.Body>
-            {users.map(user =>
-              <Table.Row key={user.id}>
-                {user.name}
-              </Table.Row>
-            )}
-          </Table.Body>
-        </Table>
-      </div>
-    )
-  }
-
   render() {
     return (
       <Container>
@@ -174,7 +176,7 @@ class App extends React.Component {
               </div>}
             {this.props.user === null && this.renderLoginPage()}
             <Route exact path='/' render={() => this.renderBlogView()} />
-            <Route exact path='/users' render={() => <this.UserView users={[]} />} />
+            <Route exact path='/users' render={() => <UserView users={[]} />} />
             <Route exact path='/blogs/:id' render={({ match }) => this.renderSingleBlogView(match.params.id)} />
           </div>
         </Router>
@@ -191,7 +193,7 @@ const mapStateToProps = (state) => {
 }
 
 const mapDispatchToProps = {
-  setNotification, like, initializeBlogs, deleteBlog, login, logout
+  setNotification, like, initializeBlogs, deleteBlog, login, logout, initializeUsers
 }
 
 export default connect(
