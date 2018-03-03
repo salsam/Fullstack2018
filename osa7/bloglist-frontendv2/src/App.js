@@ -152,6 +152,8 @@ class App extends React.Component {
 
   handleComment = (id) => async (comment) => {
     await this.props.comment(id, comment)
+    const blog = this.props.blogs.find(b => b._id === id)
+    this.notify(`comment ${comment} added to blog ${blog.title}`)
   }
 
   notify = (message, type = 'info') => {
