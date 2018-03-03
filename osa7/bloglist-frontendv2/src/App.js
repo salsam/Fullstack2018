@@ -115,13 +115,15 @@ class App extends React.Component {
       return <div></div>
     }
     return (
-      <div>
-        {this.props.blogs.map(blog =>
-          <div key={blog._id}>
-            <Link to={`/blogs/${blog._id}`}>{blog.title} {blog.author}</Link>
-          </div>
-        )}
-      </div>
+      <Table striped celled>
+        <Table.Body>
+          {this.props.blogs.map(blog =>
+            <Table.Row key={blog._id}>
+              <Link to={`/blogs/${blog._id}`}>{blog.title} {blog.author}</Link>
+            </Table.Row>
+          )}
+        </Table.Body>
+      </Table>
     )
   }
 
