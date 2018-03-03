@@ -31,10 +31,13 @@ export const likeCreation = (id) => {
 }
 
 export const comment = (id, comment) => {
-    return {
-        type: 'COMMENT',
-        id,
-        data: comment
+    return async (dispatch) => {
+        await blogService.comment(id,comment)
+        dispatch({
+            type: 'COMMENT',
+            id,
+            data: comment
+        })
     }
 }
 
