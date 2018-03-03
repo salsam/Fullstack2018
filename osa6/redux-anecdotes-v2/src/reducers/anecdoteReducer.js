@@ -26,7 +26,7 @@ export const voteCreation = (id) => {
 export const vote = (old) => {
   return async (dispatch) => {
     const updated = { ...old, votes: old.votes + 1 }
-    const response = await anecdoteService.update(updated.id, updated)
+    await anecdoteService.update(updated.id, updated)
     dispatch({
       type: 'VOTE',
       id: updated.id
