@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { login } from '../reducers/userReducer'
 import { setNotification } from '../reducers/notificationReducer'
 import loginService from '../services/login'
+import { Form, Button } from 'semantic-ui-react'
 
 class LoginForm extends React.Component {
     notify = (message, type = 'info') => {
@@ -31,23 +32,23 @@ class LoginForm extends React.Component {
         return (
             <div>
                 <h2>Kirjaudu sovellukseen</h2>
-                <form onSubmit={this.handleLogin}>
-                    <div>
-                        käyttäjätunnus
-              <input
+                <Form onSubmit={this.handleLogin}>
+                    <Form.Field>
+                        <label>käyttäjätunnus</label>
+                        <input
                             type="text"
                             name="username"
                         />
-                    </div>
-                    <div>
-                        salasana
-              <input
+                    </Form.Field>
+                    <Form.Field>
+                        <label>salasana</label>
+                        <input
                             type="password"
                             name="password"
                         />
-                    </div>
-                    <button type="submit">kirjaudu</button>
-                </form>
+                    </Form.Field>
+                    <Button type="submit">kirjaudu</Button>
+                </Form>
             </div>
         )
     }
