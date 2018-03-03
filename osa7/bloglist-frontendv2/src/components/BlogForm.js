@@ -2,8 +2,9 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { createBlog } from '../reducers/blogReducer'
 import { setNotification } from '../reducers/notificationReducer'
+import { Form, Button } from 'semantic-ui-react'
 
-class BlogForm2 extends React.Component {
+class BlogForm extends React.Component {
     handleSubmit = async (e) => {
         e.preventDefault()
         const inputField = e.target
@@ -26,22 +27,22 @@ class BlogForm2 extends React.Component {
             <div>
                 <h2>Luo uusi blogi</h2>
 
-                <form onSubmit={this.handleSubmit}>
-                    <div>
-                        title
-          <input name='title' />
-                    </div>
-                    <div>
-                        author
-          <input name='author' />
-                    </div>
-                    <div>
-                        url
-          <input name='url' />
-                    </div>
+                <Form onSubmit={this.handleSubmit}>
+                    <Form.Field>
+                        <label>title</label>
+                        <input name='title' />
+                    </Form.Field>
+                    <Form.Field>
+                        <label>author</label>
+                        <input name='author' />
+                    </Form.Field>
+                    <Form.Field>
+                        <label>url</label>
+                        <input name='url' />
+                    </Form.Field>
 
-                    <button type="submit">Luo</button>
-                </form>
+                    <Button type="submit">Luo</Button>
+                </Form>
             </div>
         )
     }
@@ -56,4 +57,4 @@ const mapStateToProps = (state) => {
 export default connect(
     mapStateToProps,
     { createBlog, setNotification }
-)(BlogForm2)
+)(BlogForm)
