@@ -7,7 +7,7 @@ import { login, logout } from './reducers/userReducer'
 import { initializeUsers } from './reducers/usersReducer'
 import { connect } from 'react-redux'
 import LoginForm from './components/LoginForm'
-import { Redirect, BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import { Table, Container, Segment, Menu, Button, Form } from 'semantic-ui-react'
 import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
@@ -19,7 +19,7 @@ const genId = () => {
   return count - 1
 }
 
-const SingleBlogView = ({ blog, like, remove, deletable, comment }) => {
+const SingleBlogView = ({ blog, like, remove, deletable, comment, history }) => {
   const adder = blog.user ? blog.user.name : 'anonymous'
 
   const handleSubmit = (e) => {
@@ -38,12 +38,12 @@ const SingleBlogView = ({ blog, like, remove, deletable, comment }) => {
           <a href={blog.url}>{blog.url}</a>
         </div>
         <div>
-          {blog.likes} likes <button onClick={like}>like</button>
+          {blog.likes} likes <Button onClick={like}>like</Button>
         </div>
         <div>
           added by {adder}
         </div>
-        {deletable && <div><button onClick={remove}>delete</button></div>}
+        {deletable && <div><Button onClick={() => { remove(); history.push('/') }}>delete</Button></div>}
       </div>
       <h2>comments</h2>
       <ul>
@@ -207,10 +207,10 @@ class App extends React.Component {
     )
   }
 
-  renderSingleBlogView = (id) => {
+  renderSingleBlogView = (id, history) => {
     const blog = this.props.blogs.find(b => b._id === id)
     if (!blog) {
-      return <Redirect to='/' />
+      return <div></div>
     }
     return < SingleBlogView
       blog={blog}
@@ -218,6 +218,7 @@ class App extends React.Component {
       remove={this.remove(blog._id)}
       deletable={blog.user === undefined || this.props.user.username === blog.user.username}
       comment={this.handleComment(blog._id)}
+      history={history}
     />
   }
 
@@ -245,8 +246,10 @@ class App extends React.Component {
             {this.props.user === null && this.renderLoginPage()}
             <Route exact path='/' render={() => this.renderBlogView()} />
             <Route exact path='/users' render={() => <UserView users={this.props.users} />} />
-            <Route exact path='/blogs/:id' render={({ match }) => this.renderSingleBlogView(match.params.id)} />
-            <Route exact path='/users/:id' render={({ match }) => this.renderSingleUserView(match.params.id)} />
+            <Route exact path='/blogs/:id' render={({ match, history }) =>
+              this.renderSingleBlogView(match.params.id, history)} />
+            <Route exact path='/users/:id' render={({ match }) =>
+              this.renderSingleUserView(match.params.id)} />
           </div>
         </Router>
       </Container>
