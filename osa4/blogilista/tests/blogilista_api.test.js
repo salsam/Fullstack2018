@@ -31,15 +31,19 @@ describe('when there is initially blogs in database', () => {
 
     test('blogs returned by GET /api/blogs contain all initial blogs', async () => {
         const blogs = await blogsInDb()
+        let match
         initialBlogs.forEach(initialBlog => {
-            expect(blogs).toContainEqual(initialBlog)
+            match = blogs.find(b => b.title === initialBlog.title && b.author === initialBlog.author)
+            expect(match).not.toBeNull()
+            expect(match.url).toBe(initialBlog.url)
+            expect(match.likes).toBe(initialBlog.likes)
         })
     })
 })
 
 describe('test adding blogs to db', async () => {
     test('POST /api/blogs succeeds with valid data', async () => {
-        const notesBeforeOperation = await blogsInDb()
+        const blogsBeforeOperation = await blogsInDb()
 
         const newBlog = {
             author: "test adding valid blogs",
@@ -53,9 +57,9 @@ describe('test adding blogs to db', async () => {
             .expect(200)
             .expect('Content-Type', /application\/json/)
 
-        const notesAfterOperation = await blogsInDb()
-        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length + 1)
-        expect(notesAfterOperation.find(blog => (
+        const blogsAfterOperation = await blogsInDb()
+        expect(blogsAfterOperation.length).toBe(blogsBeforeOperation.length + 1)
+        expect(blogsAfterOperation.find(blog => (
             blog.author === newBlog.author &&
             blog.likes === newBlog.likes &&
             blog.title === newBlog.title &&
@@ -71,8 +75,8 @@ describe('test adding blogs to db', async () => {
         }
 
         await api.post('/api/blogs').send(newBlog)
-        const notesAfterOperation = await blogsInDb()
-        const match = notesAfterOperation.find(blog => (
+        const blogsAfterOperation = await blogsInDb()
+        const match = blogsAfterOperation.find(blog => (
             blog.author === newBlog.author
             && blog.author === newBlog.author
             && blog.title === newBlog.title
@@ -126,31 +130,31 @@ describe('deleting blogs', async () => {
 
     test('404 returned by DELETE /api/blogs/id to valid missing id', async () => {
         const validMissingId = await nonExistingValidId()
-        const notesBeforeOperation = await blogsInDb()
+        const blogsBeforeOperation = await blogsInDb()
 
         await api
             .delete(`/api/blogs/${validMissingId}`)
             .expect(404)
 
-        const notesAfterOperation = await blogsInDb()
-        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length)
+        const blogsAfterOperation = await blogsInDb()
+        expect(blogsAfterOperation.length).toBe(blogsBeforeOperation.length)
     })
 
     test('204 returned by successful DELETE to /api/blogs/id', async () => {
-        const notesBeforeOperation = await blogsInDb()
+        const blogsBeforeOperation = await blogsInDb()
 
 
         await api
             .delete(`/api/blogs/${addedBlog._id}`)
             .expect(204)
 
-        const notesAfterOperation = await blogsInDb()
-        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length - 1)
-        expect(notesAfterOperation).not.toContainEqual(addedBlog)
+        const blogsAfterOperation = await blogsInDb()
+        expect(blogsAfterOperation.length).toBe(blogsBeforeOperation.length - 1)
+        expect(blogsAfterOperation).not.toContainEqual(addedBlog)
     })
 
     test('400 returned by DELETE /api/blogs/id to malformatted id', async () => {
-        const notesBeforeOperation = await blogsInDb()
+        const blogsBeforeOperation = await blogsInDb()
 
         const res = await api
             .delete(`/api/blogs/xyz`)
@@ -158,15 +162,16 @@ describe('deleting blogs', async () => {
 
         expect(res.body.error).toBe('malformatted id')
 
-        const notesAfterOperation = await blogsInDb()
-        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length)
+        const blogsAfterOperation = await blogsInDb()
+        expect(blogsAfterOperation.length).toBe(blogsBeforeOperation.length)
     })
 })
 
 describe('updating blogs', async () => {
     let addedBlog
 
-    beforeAll(async () => {
+    beforeEach(async () => {
+        await Blog.remove({})
         addedBlog = new Blog({
             author: "will be updated by HTTP UPDATE",
             title: "will be updated by HTTP UPDATE",
@@ -176,7 +181,7 @@ describe('updating blogs', async () => {
     })
 
     test('PUT /api/blogs/id updates likes', async () => {
-        const notesBeforeOperation = await blogsInDb()
+        const blogsBeforeOperation = await blogsInDb()
 
         const changedBlog = {
             author: 'updated with HTTP UPDATE',
@@ -191,20 +196,20 @@ describe('updating blogs', async () => {
             .send(changedBlog)
             .expect(200)
 
-        const notesAfterOperation = await blogsInDb()
-        await expect(notesAfterOperation.find(blog => {
+        const blogsAfterOperation = await blogsInDb()
+        await expect(blogsAfterOperation.find(blog => {
             (blog.author === addedBlog.author
                 && blog.title === addedBlog.title
                 && blog.url === addedBlog.url)
         })).toBeUndefined()
 
-        expect(notesAfterOperation.find(blog =>
+        expect(blogsAfterOperation.find(blog =>
             (blog.url === changedBlog.url && blog.title === changedBlog.title)).likes).toBe(42)
-        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length)
+        expect(blogsAfterOperation.length).toBe(blogsBeforeOperation.length)
     })
 
     test('400 returned by PUT /api/blogs/id to malformatted id', async () => {
-        const notesBeforeOperation = await blogsInDb()
+        const blogsBeforeOperation = await blogsInDb()
 
         const res = await api
             .put(`/api/blogs/xyzasd`)
@@ -213,21 +218,66 @@ describe('updating blogs', async () => {
 
         expect(res.body.error).toBe('malformatted id')
 
-        const notesAfterOperation = await blogsInDb()
-        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length)
+        const blogsAfterOperation = await blogsInDb()
+        expect(blogsAfterOperation.length).toBe(blogsBeforeOperation.length)
     })
 
     test('404 returned by PUT /api/blogs/id to missing id', async () => {
         const validMissingId = await nonExistingValidId()
-        const notesBeforeOperation = await blogsInDb()
+        const blogsBeforeOperation = await blogsInDb()
 
         await api
             .put(`/api/blogs/${validMissingId}`, addedBlog)
             .send(addedBlog)
             .expect(404)
 
-        const notesAfterOperation = await blogsInDb()
-        expect(notesAfterOperation.length).toBe(notesBeforeOperation.length)
+        const blogsAfterOperation = await blogsInDb()
+        expect(blogsAfterOperation.length).toBe(blogsBeforeOperation.length)
+    })
+
+    test('Comments can be added to exsiting blogs POST /api/blogs/id/comment', async () => {
+        const blogsBeforeOperation = await blogsInDb()
+        const comment = 'commenting works'
+
+        await api.post(`/api/blogs/${addedBlog._id}/comment`)
+            .send({ comment })
+            .expect(200)
+
+
+        const blogsAfterOperation = await blogsInDb()
+        const updated = blogsAfterOperation.find(blog => blog.url === addedBlog.url)
+        expect(blogsAfterOperation.length).toBe(blogsBeforeOperation.length)
+        expect(updated).not.toBeNull()
+        expect(JSON.stringify(updated.comments)).toEqual(JSON.stringify([comment]))
+    })
+
+    test('addding comments to non-existing blog POST /api/blogs/id/comment returns 404', async () => {
+        const validMissingId = await nonExistingValidId()
+        const blogsBeforeOperation = await blogsInDb()
+        const comment = 'commenting works'
+
+        await api
+            .post(`/api/blogs/${validMissingId}/comment`)
+            .send({ comment })
+            .expect(404)
+
+        const blogsAfterOperation = await blogsInDb()
+        expect(blogsAfterOperation.length).toBe(blogsBeforeOperation.length)
+    })
+
+    test('400 returned by POST /api/blogs/id/comment to malformatted id', async () => {
+        const blogsBeforeOperation = await blogsInDb()
+        const comment = 'commenting works'
+
+        const res = await api
+            .post(`/api/blogs/xyzasd/comment`)
+            .send({ comment })
+            .expect(400)
+
+        expect(res.body.error).toBe('malformatted id')
+
+        const blogsAfterOperation = await blogsInDb()
+        expect(blogsAfterOperation.length).toBe(blogsBeforeOperation.length)
     })
 })
 

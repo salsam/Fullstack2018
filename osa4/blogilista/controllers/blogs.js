@@ -12,9 +12,11 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.post('/:id/comment', async (request, response) => {
   const body = request.body
-  console.log(request.params.id)
   try {
     const blog = await Blog.findById(request.params.id)
+    if (!blog) {
+      return response.status(404).end()
+    }
     const updated = {
       author: blog.author,
       title: blog.title,
@@ -23,7 +25,6 @@ blogsRouter.post('/:id/comment', async (request, response) => {
       _id: blog._id,
       comments: blog.comments.concat(body.comment)
     }
-    console.log(updated)
     const res = await Blog.findByIdAndUpdate(request.params.id, updated)
     res ?
       response.status(200).json(res.body).end() :

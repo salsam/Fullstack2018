@@ -5,6 +5,7 @@ module.exports = {
     },
     "extends": "eslint:recommended",
     "parserOptions": {
+        "ecmaVersion": 8,
         "ecmaFeatures": {
             "experimentalObjectRestSpread": true,
             "jsx": true
@@ -17,7 +18,7 @@ module.exports = {
     "rules": {
         "indent": [
             "error",
-            4
+            2
         ],
         "linebreak-style": [
             "error",
@@ -30,6 +31,21 @@ module.exports = {
         "semi": [
             "error",
             "never"
-        ]
+        ],
+        "eqeqeq": "error",
+        "no-trailing-spaces": "error",
+        "object-curly-spacing": [
+            "error", "always"
+        ],
+        "arrow-spacing": [
+            "error", { "before": true, "after": true }
+        ],
+        "no-console": 0
+    },
+    "globals": {
+        "require": true,
+        "__dirname": true,
+        "module": true,
+        "BACKEND_URL": true
     }
 };
