@@ -11,98 +11,9 @@ import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import { Table, Container, Segment, Menu, Button, Form } from 'semantic-ui-react'
 import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
-
-let count = 1
-
-const genId = () => {
-  count += 1
-  return count - 1
-}
-
-const SingleBlogView = ({ blog, like, remove, deletable, comment, history }) => {
-  const adder = blog.user ? blog.user.name : 'anonymous'
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    comment(e.target.comment.value)
-    e.target.comment.value = ''
-  }
-
-  return (
-    <div>
-      <div>
-        <h2>{blog.title} {blog.author}</h2>
-      </div>
-      <div className='content'>
-        <div>
-          <a href={blog.url}>{blog.url}</a>
-        </div>
-        <div>
-          {blog.likes} likes <Button onClick={like}>like</Button>
-        </div>
-        <div>
-          added by {adder}
-        </div>
-        {deletable && <div><Button onClick={() => { remove(); history.push('/') }}>delete</Button></div>}
-      </div>
-      <h2>comments</h2>
-      <ul>
-        {blog.comments.map(comment =>
-          <li key={genId()}>{comment}</li>)}
-      </ul>
-      <Form onSubmit={handleSubmit}>
-        <Form.Field>
-          <input name="comment" />
-          <Button type='submit'>add comment</Button>
-        </Form.Field>
-      </Form>
-    </div>
-  )
-}
-
-const SingleUserView = ({ user }) => {
-  if (!user) return <div></div>
-  return (
-    <div>
-      <h1>{user.name}</h1>
-      <h2>Added blogs </h2>
-      <ul>
-        {user.blogs.map(blog =>
-          <li key={blog._id}>{blog.title} by {blog.author}</li>
-        )}
-      </ul>
-    </div>
-  )
-}
-
-const UserView = ({ users }) => {
-  if (!users) return <div></div>
-  return (
-    <div>
-      <h2>users</h2>
-      <Table striped celled columns={2}>
-        <Table.Header>
-          <Table.Row>
-            <Table.HeaderCell>username</Table.HeaderCell>
-            <Table.HeaderCell>blogs added</Table.HeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {users.map(user =>
-            <Table.Row key={user.id}>
-              <Table.Cell>
-                <Link to={`/users/${user.id}`}>
-                  {user.name}
-                </Link>
-              </Table.Cell>
-              <Table.Cell>{user.blogs.length}</Table.Cell>
-            </Table.Row>
-          )}
-        </Table.Body>
-      </Table>
-    </div>
-  )
-}
+import SingleBlogView from './components/SingleBlogView'
+import UserView from './components/UserView'
+import SingleUserView from './components/SingleUserView'
 
 class MenuComponent extends React.Component {
   constructor(props) {
@@ -150,7 +61,7 @@ class App extends React.Component {
     }
   }
 
-  handleComment = (id) => async (comment) => {
+  handleComment = (id: string) => async (comment) => {
     await this.props.comment(id, comment)
     const blog = this.props.blogs.find(b => b._id === id)
     this.notify(`comment ${comment} added to blog ${blog.title}`)
@@ -165,7 +76,7 @@ class App extends React.Component {
     this.notify(`you liked '${liked.title}' by ${liked.author}`)
   }
 
-  remove = (id) => async () => {
+  remove = (id: string) => async () => {
     const deleted = this.props.blogs.find(b => b._id === id)
     const ok = window.confirm(`remove blog '${deleted.title}' by ${deleted.author}?`)
     if (ok === false) {
@@ -207,7 +118,7 @@ class App extends React.Component {
     )
   }
 
-  renderSingleBlogView = (id, history) => {
+  renderSingleBlogView = (id: string, history) => {
     const blog = this.props.blogs.find(b => b._id === id)
     if (!blog) {
       return <div></div>

@@ -13,7 +13,7 @@ module.exports = {
         "sourceType": "module"
     },
     "plugins": [
-        "react"
+        "react","flowtype-errors"
     ],
     "rules": {
         "indent": [
@@ -40,7 +40,9 @@ module.exports = {
         "arrow-spacing": [
             "error", { "before": true, "after": true }
         ],
-        "no-console": 0
+        "no-console": 0,
+        "flowtype-errors/show-errors": 2,
+        "flowtype-errors/show-warnings": 1
     },
     "globals": {
         "require": true,

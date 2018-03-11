@@ -9,6 +9,7 @@ const userRouter = require('./controllers/users')
 const mongoose = require('mongoose')
 const config = require('./utils/config')
 const tokenExtractor = require('./controllers/middleware')
+const path = require('path')
 
 app.use(cors())
 app.use(bodyParser.json())

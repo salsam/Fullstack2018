@@ -14,8 +14,10 @@ const config = (mode, argv) => {
     devServer: {
       contentBase: path.resolve(__dirname, 'dist'),
       compress: true,
-      port: 3000
+      port: 3000,
+      historyApiFallback: true
     },
+    devtool: 'source-map',
     module: {
       rules: [
         {

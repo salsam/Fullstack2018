@@ -235,7 +235,7 @@ describe('updating blogs', async () => {
         expect(blogsAfterOperation.length).toBe(blogsBeforeOperation.length)
     })
 
-    test('Comments can be added to exsiting blogs POST /api/blogs/id/comment', async () => {
+    test('Comments can be added to existing blogs POST /api/blogs/id/comment', async () => {
         const blogsBeforeOperation = await blogsInDb()
         const comment = 'commenting works'
 
